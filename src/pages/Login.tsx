@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import Logo from '../components/Logo'
+import PoweredByElodiatech from '../components/PoweredByElodiatech'
 import { isSupabaseConfigured } from '../lib/supabase'
 
 export default function Login() {
@@ -94,6 +95,8 @@ export default function Login() {
         >
           Pas encore de compte ? Créer un compte
         </Link>
+
+        <PoweredByElodiatech className="mt-8" />
       </div>
     </div>
   )

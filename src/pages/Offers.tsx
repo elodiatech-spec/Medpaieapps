@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Check, Sparkles } from 'lucide-react'
 import Logo from '../components/Logo'
+import PoweredByElodiatech from '../components/PoweredByElodiatech'
 
 interface PlanCard {
   name: string
@@ -156,6 +157,10 @@ export default function Offers() {
           Tarifs TTC (TVA locale de 8,5 % applicable en Guadeloupe et en Martinique).
         </p>
       </section>
+
+      <footer className="border-t border-slate-100 py-6">
+        <PoweredByElodiatech />
+      </footer>
     </div>
   )
 }

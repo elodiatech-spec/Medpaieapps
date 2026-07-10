@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../lib/database.types'
 import Logo from './Logo'
+import PoweredByElodiatech from './PoweredByElodiatech'
 
 interface NavItem {
   to: string
@@ -103,6 +104,7 @@ export default function Layout() {
             <LogOut size={16} />
             Déconnexion
           </button>
+          <PoweredByElodiatech className="mt-4" />
         </div>
       </aside>
 
