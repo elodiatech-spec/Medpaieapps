@@ -4,21 +4,29 @@
 -- À utiliser uniquement pour repartir sur une base vierge avant un test
 -- grandeur nature. Aucune annulation possible après exécution.
 --
+-- Tolérant aux tables optionnelles pas encore créées sur ce projet
+-- (ignore silencieusement une table absente au lieu d'échouer).
+--
 -- À coller dans Supabase → SQL Editor → Run.
 
--- 1) Données rattachées aux cabinets/salariés
-delete from documents;
-delete from leave_requests;
-delete from payroll_variables;
-delete from time_entries;
-delete from messages;
-delete from portal_credentials;
-delete from invoices;
+do $$
+declare
+  t text;
+begin
+  foreach t in array array[
+    'documents', 'leave_requests', 'payroll_variables', 'time_entries',
+    'messages', 'portal_credentials', 'invoices'
+  ] loop
+    if to_regclass('public.' || t) is not null then
+      execute format('delete from %I', t);
+    end if;
+  end loop;
+end $$;
 
--- 2) Comptes salariés/médecins (tout sauf les admins)
+-- Comptes salariés/médecins (tout sauf les admins)
 delete from profiles where role != 'admin';
 delete from auth.users where id not in (select id from profiles);
 
--- 3) Cabinets (on garde le cabinet technique "a-affecter" utilisé par
---    l'inscription en attendant qu'un admin affecte le nouveau compte)
+-- Cabinets (on garde le cabinet technique "a-affecter" utilisé par
+-- l'inscription en attendant qu'un admin affecte le nouveau compte)
 delete from cabinets where id != 'a-affecter';
