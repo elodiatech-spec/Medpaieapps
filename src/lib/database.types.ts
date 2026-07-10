@@ -203,6 +203,15 @@ export const PLAN_LABELS: Record<Plan, string> = {
   medi_paie_equipeplus: 'MEDI PAIE EQUIPE+',
 }
 
+// Tarifs TTC mensuels (doit rester cohérent avec supabase/functions/monthly-invoice).
+export const PLAN_PRICES: Record<Plan, { engaged: number; free: number }> = {
+  medi_paie_solo: { engaged: 79, free: 99 },
+  medi_cab: { engaged: 149, free: 189 },
+  medi_paie_cabplus: { engaged: 219, free: 279 },
+  medi_paie_equipe: { engaged: 279, free: 359 },
+  medi_paie_equipeplus: { engaged: 329, free: 419 },
+}
+
 export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
   conges_payes: 'Congés payés',
   rtt: 'RTT',

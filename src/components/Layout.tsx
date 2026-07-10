@@ -12,6 +12,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import { useAdminAlerts } from '../hooks/useAdminAlerts'
 import type { Role } from '../lib/database.types'
 import Logo from './Logo'
 import PoweredByElodiatech from './PoweredByElodiatech'
@@ -25,12 +26,15 @@ interface NavItem {
   // pas dans la barre du bas (mobile), pour garder la navigation mobile
   // lisible malgré le nombre croissant de fonctionnalités.
   mobile?: boolean
+  // Nom de la clé sous laquelle afficher une pastille de compte (voir useAdminAlerts).
+  badge?: 'admin-alerts'
 }
 
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
-    { to: '/', label: 'Cabinets', icon: Building2, end: true },
-    { to: '/factures', label: 'Factures', icon: Receipt },
+    { to: '/', label: 'Cabinets', icon: Building2, end: true, badge: 'admin-alerts' },
+    { to: '/chiffres', label: 'Statistiques', icon: BarChart3 },
+    { to: '/factures', label: 'Factures', icon: Receipt, mobile: false },
   ],
   employer: [
     { to: '/', label: 'Accueil', icon: LayoutDashboard, end: true },
@@ -48,6 +52,18 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/documents', label: 'Documents', icon: FileText, mobile: false },
     { to: '/dossier', label: 'Mon dossier', icon: IdCard, mobile: false },
   ],
+}
+
+function AdminAlertBadge({ className = '' }: { className?: string }) {
+  const { total } = useAdminAlerts()
+  if (total === 0) return null
+  return (
+    <span
+      className={`flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[11px] font-semibold text-white ${className}`}
+    >
+      {total}
+    </span>
+  )
 }
 
 const ROLE_LABELS: Record<Role, string> = {
@@ -88,6 +104,7 @@ export default function Layout() {
             >
               <item.icon size={18} />
               {item.label}
+              {item.badge === 'admin-alerts' && <AdminAlertBadge className="ml-auto" />}
             </NavLink>
           ))}
         </nav>
@@ -133,13 +150,16 @@ export default function Layout() {
             to={item.to}
             end={item.end}
             className={({ isActive }) =>
-              `flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium ${
+              `relative flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium ${
                 isActive ? 'text-brand-700' : 'text-slate-500'
               }`
             }
           >
             <item.icon size={20} />
             {item.label}
+            {item.badge === 'admin-alerts' && (
+              <AdminAlertBadge className="absolute right-6 top-1 h-4 min-w-4 px-1 text-[10px]" />
+            )}
           </NavLink>
         ))}
       </nav>
