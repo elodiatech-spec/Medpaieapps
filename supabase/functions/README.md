@@ -6,9 +6,10 @@ tableau de bord Supabase (**Edge Functions** → **Deploy a new function** →
 
 - **payroll-reminders** : rappels de saisie (J25) et alertes de retard (J27+),
   déclenchée quotidiennement par `pg_cron`.
-- **notify-validation** : confirme à l'admin qu'un médecin vient de valider
-  des variables de paie, déclenchée par un trigger SQL sur `UPDATE` de
-  `payroll_variables`.
+- **notify-validation** : confirme à l'admin (1) qu'un médecin vient de
+  valider des variables de paie, ou (2) qu'une salariée vient de transmettre
+  un nouveau justificatif à vérifier. Déclenchée par des triggers SQL sur
+  `payroll_variables` et `leave_requests`.
 - **monthly-invoice** : calcule et enregistre la facture du mois pour chaque
   cabinet actif, envoie un e-mail récapitulatif au médecin employeur.
   Déclenchée le 1er de chaque mois par `pg_cron`.
@@ -30,10 +31,17 @@ tableau de bord Supabase (**Edge Functions** → **Deploy a new function** →
    dans les réglages de la fonction, **désactiver "Enforce JWT
    Verification"** (elles sont appelées par `pg_cron`, pas par un
    utilisateur connecté). Laisser activé pour `notify-validation`.
-4. **Déclencheur** pour `notify-validation` : exécuter
-   `supabase/migrations/0006_notify_validation_trigger.sql` dans le SQL
-   Editor (trigger SQL direct via `pg_net`, plus simple qu'un Database
-   Webhook et fonctionne quelle que soit la version du tableau de bord).
+4. **Déclencheurs** pour `notify-validation` : exécuter
+   `supabase/migrations/0006_notify_validation_trigger.sql` puis
+   `supabase/migrations/0011_notify_justification_uploaded_trigger.sql` dans
+   le SQL Editor (triggers SQL directs via `pg_net`, plus simples qu'un
+   Database Webhook et fonctionnent quelle que soit la version du tableau
+   de bord).
 5. **Cron** : exécuter `supabase/migrations/0005_cron_jobs.sql` puis
    `supabase/migrations/0009_justification_reminders_cron.sql` dans le SQL
    Editor (les valeurs du projet y sont déjà renseignées).
+6. **Mise à jour du code** : si `notify-validation` a déjà été déployée
+   avant l'ajout du cas justificatif, retourne dans **Edge Functions** →
+   `notify-validation` → onglet **Code**, remplace le contenu par la
+   nouvelle version de `supabase/functions/notify-validation/index.ts` et
+   redéploie.
