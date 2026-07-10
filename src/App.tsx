@@ -12,6 +12,7 @@ import Leaves from './pages/cabinet/Leaves'
 import Documents from './pages/cabinet/Documents'
 import MyFile from './pages/cabinet/MyFile'
 import Messaging from './pages/cabinet/Messaging'
+import Stats from './pages/cabinet/Stats'
 import AdminHome from './pages/admin/AdminHome'
 import CabinetDetail from './pages/admin/CabinetDetail'
 import CabinetEdit from './pages/admin/CabinetEdit'
@@ -82,6 +83,14 @@ export default function App() {
               element={
                 <ProtectedRoute allow={['employer', 'employee']}>
                   <Messaging />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/statistiques"
+              element={
+                <ProtectedRoute allow={['employer']}>
+                  <Stats />
                 </ProtectedRoute>
               }
             />

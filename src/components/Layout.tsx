@@ -10,6 +10,7 @@ import {
   Stethoscope,
   IdCard,
   MessageCircle,
+  BarChart3,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../lib/database.types'
@@ -19,6 +20,10 @@ interface NavItem {
   label: string
   icon: typeof LayoutDashboard
   end?: boolean
+  // Rubriques secondaires : visibles dans la barre latérale (desktop) mais
+  // pas dans la barre du bas (mobile), pour garder la navigation mobile
+  // lisible malgré le nombre croissant de fonctionnalités.
+  mobile?: boolean
 }
 
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
@@ -30,16 +35,17 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/', label: 'Accueil', icon: LayoutDashboard, end: true },
     { to: '/variables', label: 'Variables', icon: ClipboardList },
     { to: '/conges', label: 'Congés', icon: CalendarDays },
-    { to: '/documents', label: 'Documents', icon: FileText },
     { to: '/messagerie', label: 'Messagerie', icon: MessageCircle },
+    { to: '/documents', label: 'Documents', icon: FileText, mobile: false },
+    { to: '/statistiques', label: 'Statistiques', icon: BarChart3, mobile: false },
   ],
   employee: [
     { to: '/', label: 'Accueil', icon: LayoutDashboard, end: true },
     { to: '/variables', label: 'Variables', icon: ClipboardList },
     { to: '/conges', label: 'Congés', icon: CalendarDays },
-    { to: '/documents', label: 'Documents', icon: FileText },
-    { to: '/dossier', label: 'Mon dossier', icon: IdCard },
     { to: '/messagerie', label: 'Messagerie', icon: MessageCircle },
+    { to: '/documents', label: 'Documents', icon: FileText, mobile: false },
+    { to: '/dossier', label: 'Mon dossier', icon: IdCard, mobile: false },
   ],
 }
 
@@ -54,6 +60,7 @@ export default function Layout() {
   if (!profile) return null
 
   const navItems = NAV_BY_ROLE[profile.role]
+  const mobileNavItems = navItems.filter((item) => item.mobile !== false)
 
   return (
     <div className="flex min-h-svh flex-col bg-slate-50 md:flex-row">
@@ -120,9 +127,9 @@ export default function Layout() {
         </div>
       </main>
 
-      {/* Bottom nav (mobile) */}
+      {/* Bottom nav (mobile) — rubriques principales uniquement */}
       <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-slate-200 bg-white md:hidden">
-        {navItems.map((item) => (
+        {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
