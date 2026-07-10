@@ -41,9 +41,12 @@ utilisé par défaut) et affectez-y vos utilisateurs (`cabinet_id`, `role`) depu
 
 ### Données de démonstration
 
-Pour tester l'application avec du contenu déjà rempli (heures, congés, variables de paie,
-document) sans utiliser un vrai cabinet client : voir `supabase/seed_demo.sql` (instructions en
-en-tête du fichier) et `supabase/seed_demo_cleanup.sql` pour tout supprimer ensuite.
+Pour tester l'application avec du contenu déjà rempli (2 cabinets, heures, congés, variables de
+paie, document) sans utiliser un vrai cabinet client : voir `supabase/seed_demo.sql` (instructions
+en en-tête du fichier) et `supabase/seed_demo_cleanup.sql` pour tout supprimer ensuite.
+
+Pour repartir d'une base vierge avant un test grandeur nature (supprime tous les cabinets et
+comptes existants, sauf les admins) : `supabase/reset_all_test_data.sql` — irréversible.
 
 ## Ce qui est couvert dans ce scaffold initial
 

@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase } from '../lib/supabase'
 import Card from '../components/Card'
 
 const ROLE_LABELS: Record<string, string> = {
@@ -9,12 +10,25 @@ const ROLE_LABELS: Record<string, string> = {
 }
 
 export default function Account() {
-  const { profile, updatePassword } = useAuth()
+  const { profile, updatePassword, refreshProfile } = useAuth()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [savingName, setSavingName] = useState(false)
+  const [nameSaved, setNameSaved] = useState(false)
+  const [nameError, setNameError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name)
+      setLastName(profile.last_name)
+    }
+  }, [profile])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -40,6 +54,29 @@ export default function Account() {
     setSuccess(true)
   }
 
+  async function handleNameSubmit(e: FormEvent) {
+    e.preventDefault()
+    if (!profile) return
+    setNameError(null)
+    setNameSaved(false)
+    if (!firstName.trim() || !lastName.trim()) {
+      setNameError('Le prénom et le nom sont obligatoires.')
+      return
+    }
+    setSavingName(true)
+    const { error } = await supabase
+      .from('profiles')
+      .update({ first_name: firstName.trim(), last_name: lastName.trim() })
+      .eq('id', profile.id)
+    setSavingName(false)
+    if (error) {
+      setNameError(error.message)
+      return
+    }
+    await refreshProfile()
+    setNameSaved(true)
+  }
+
   if (!profile) return null
 
   return (
@@ -58,6 +95,44 @@ export default function Account() {
             <span className="font-medium text-slate-900">{profile.email}</span>
           </div>
         </div>
+      </Card>
+
+      <Card title="Prénom et nom">
+        <form onSubmit={handleNameSubmit} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Prénom</label>
+              <input
+                type="text"
+                required
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Nom</label>
+              <input
+                type="text"
+                required
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+          </div>
+
+          {nameError && <p className="text-sm text-red-600">{nameError}</p>}
+          {nameSaved && <p className="text-sm text-brand-700">Nom mis à jour.</p>}
+
+          <button
+            type="submit"
+            disabled={savingName}
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {savingName ? 'Enregistrement…' : 'Enregistrer'}
+          </button>
+        </form>
       </Card>
 
       <Card title="Changer de mot de passe">
