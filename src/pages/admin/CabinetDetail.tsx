@@ -1,21 +1,37 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Download } from 'lucide-react'
+import { ArrowLeft, Download, UserPlus } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
 import Card from '../../components/Card'
 import StatusBadge from '../../components/StatusBadge'
-import { PLAN_LABELS, type Cabinet, type PayrollVariable, type Profile, type LeaveRequest, type DocumentType } from '../../lib/database.types'
+import {
+  PLAN_LABELS,
+  type Cabinet,
+  type PayrollVariable,
+  type Profile,
+  type LeaveRequest,
+  type DocumentType,
+  type Role,
+} from '../../lib/database.types'
 
 const period = currentMonthPeriod()
+
+const ROLE_LABELS: Record<Role, string> = {
+  admin: 'Admin Elodiatech',
+  employer: 'Médecin employeur',
+  employee: 'Assistante médicale',
+}
 
 export default function CabinetDetail() {
   const { id } = useParams<{ id: string }>()
   const [cabinet, setCabinet] = useState<Cabinet | null>(null)
-  const [employees, setEmployees] = useState<Profile[]>([])
+  const [members, setMembers] = useState<Profile[]>([])
   const [variables, setVariables] = useState<PayrollVariable[]>([])
   const [leaves, setLeaves] = useState<LeaveRequest[]>([])
   const [loading, setLoading] = useState(true)
+
+  const employees = members.filter((m) => m.role === 'employee')
 
   const [employeeId, setEmployeeId] = useState('')
   const [docName, setDocName] = useState('')
@@ -23,19 +39,59 @@ export default function CabinetDetail() {
   const [docUrl, setDocUrl] = useState('')
   const [saving, setSaving] = useState(false)
 
+  const [memberEmail, setMemberEmail] = useState('')
+  const [memberFirstName, setMemberFirstName] = useState('')
+  const [memberLastName, setMemberLastName] = useState('')
+  const [memberRole, setMemberRole] = useState<Role>('employee')
+  const [memberSaving, setMemberSaving] = useState(false)
+  const [memberError, setMemberError] = useState<string | null>(null)
+
   async function load() {
     if (!id) return
-    const [{ data: cab }, { data: emp }, { data: vars }, { data: lvs }] = await Promise.all([
+    const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }] = await Promise.all([
       supabase.from('cabinets').select('*').eq('id', id).single(),
-      supabase.from('profiles').select('*').eq('cabinet_id', id).eq('role', 'employee'),
+      supabase.from('profiles').select('*').eq('cabinet_id', id),
       supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
       supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(10),
     ])
     setCabinet(cab as Cabinet)
-    setEmployees((emp as Profile[]) ?? [])
+    setMembers((mem as Profile[]) ?? [])
     setVariables((vars as PayrollVariable[]) ?? [])
     setLeaves((lvs as LeaveRequest[]) ?? [])
     setLoading(false)
+  }
+
+  async function assignMember(e: FormEvent) {
+    e.preventDefault()
+    if (!id || !memberEmail.trim()) return
+    setMemberSaving(true)
+    setMemberError(null)
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        cabinet_id: id,
+        role: memberRole,
+        first_name: memberFirstName.trim() || undefined,
+        last_name: memberLastName.trim() || undefined,
+      })
+      .eq('email', memberEmail.trim())
+      .select()
+
+    setMemberSaving(false)
+    if (error) {
+      setMemberError(error.message)
+      return
+    }
+    if (!data || data.length === 0) {
+      setMemberError(
+        "Aucun compte trouvé avec cet e-mail. Créez-le d'abord dans Supabase (Authentication > Users), puis réessayez.",
+      )
+      return
+    }
+    setMemberEmail('')
+    setMemberFirstName('')
+    setMemberLastName('')
+    await load()
   }
 
   useEffect(() => {
@@ -101,6 +157,84 @@ export default function CabinetDetail() {
           {PLAN_LABELS[cabinet.plan]} · {employees.length} salarié(s)
         </p>
       </div>
+
+      <Card title="Membres du cabinet">
+        {members.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucun membre affecté à ce cabinet pour le moment.</p>
+        ) : (
+          <div className="mb-4 flex flex-col divide-y divide-slate-100">
+            {members.map((m) => (
+              <div key={m.id} className="flex items-center justify-between py-2.5 text-sm">
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {m.first_name} {m.last_name}
+                  </p>
+                  <p className="text-slate-500">{m.email}</p>
+                </div>
+                <span className="text-xs font-medium text-slate-500">{ROLE_LABELS[m.role]}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <form onSubmit={assignMember} className="flex flex-col gap-4 border-t border-slate-100 pt-4">
+          <p className="text-sm text-slate-500">
+            Affecter un compte déjà créé dans Supabase (Authentication &gt; Users) à ce cabinet.
+          </p>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">E-mail du compte</label>
+            <input
+              type="email"
+              required
+              value={memberEmail}
+              onChange={(e) => setMemberEmail(e.target.value)}
+              placeholder="assistante@cabinet.fr"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Prénom</label>
+              <input
+                type="text"
+                value={memberFirstName}
+                onChange={(e) => setMemberFirstName(e.target.value)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Nom</label>
+              <input
+                type="text"
+                value={memberLastName}
+                onChange={(e) => setMemberLastName(e.target.value)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">Rôle</label>
+            <select
+              value={memberRole}
+              onChange={(e) => setMemberRole(e.target.value as Role)}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            >
+              <option value="employee">Assistante médicale</option>
+              <option value="employer">Médecin employeur</option>
+            </select>
+          </div>
+
+          {memberError && <p className="text-sm text-red-600">{memberError}</p>}
+
+          <button
+            type="submit"
+            disabled={memberSaving}
+            className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            <UserPlus size={16} /> Affecter au cabinet
+          </button>
+        </form>
+      </Card>
 
       <Card
         title={`Variables — ${formatMonthPeriod(period)}`}
