@@ -15,6 +15,7 @@ import {
   type Profile,
   type LeaveRequest,
   type DocumentType,
+  type AppDocument,
   type Role,
 } from '../../lib/database.types'
 
@@ -23,6 +24,12 @@ interface OnboardingStep {
   done: boolean
   to?: string
   linkLabel?: string
+}
+
+const DOCUMENT_TYPE_LABELS: Record<DocumentType, string> = {
+  fiche_de_paie: 'Fiche de paie',
+  justificatif_absence: "Justificatif d'absence",
+  facture_mensuelle: 'Facture mensuelle',
 }
 
 async function openJustification(path: string) {
@@ -45,7 +52,7 @@ export default function CabinetDetail() {
   const [variables, setVariables] = useState<PayrollVariable[]>([])
   const [leaves, setLeaves] = useState<LeaveRequest[]>([])
   const [portalCount, setPortalCount] = useState(0)
-  const [documentCount, setDocumentCount] = useState(0)
+  const [documents, setDocuments] = useState<AppDocument[]>([])
   const [loading, setLoading] = useState(true)
 
   const employees = members.filter((m) => m.role === 'employee')
@@ -66,22 +73,28 @@ export default function CabinetDetail() {
 
   async function load() {
     if (!id) return
-    const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }, { count: portals }, { count: docs }] =
+    const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }, { count: portals }, { data: docs }] =
       await Promise.all([
         supabase.from('cabinets').select('*').eq('id', id).single(),
         supabase.from('profiles').select('*').eq('cabinet_id', id),
         supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
         supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(50),
         supabase.from('portal_credentials').select('*', { count: 'exact', head: true }).eq('cabinet_id', id),
-        supabase.from('documents').select('*', { count: 'exact', head: true }).eq('cabinet_id', id),
+        supabase.from('documents').select('*').eq('cabinet_id', id).order('created_at', { ascending: false }),
       ])
     setCabinet(cab as Cabinet)
     setMembers((mem as Profile[]) ?? [])
     setVariables((vars as PayrollVariable[]) ?? [])
     setLeaves((lvs as LeaveRequest[]) ?? [])
     setPortalCount(portals ?? 0)
-    setDocumentCount(docs ?? 0)
+    setDocuments((docs as AppDocument[]) ?? [])
     setLoading(false)
+  }
+
+  async function deleteDocument(docId: string) {
+    if (!confirm('Supprimer ce document ? Cette action est définitive.')) return
+    await supabase.from('documents').delete().eq('id', docId)
+    await load()
   }
 
   async function assignMember(e: FormEvent) {
@@ -89,6 +102,29 @@ export default function CabinetDetail() {
     if (!id || !memberEmail.trim()) return
     setMemberSaving(true)
     setMemberError(null)
+
+    // Vérifie d'abord qu'on ne s'apprête pas à réaffecter un compte
+    // administrateur (ex. par erreur de frappe sur sa propre adresse) : ça
+    // le priverait de son accès transverse à tous les cabinets.
+    const { data: existing } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('email', memberEmail.trim())
+      .maybeSingle()
+
+    if (!existing) {
+      setMemberSaving(false)
+      setMemberError(
+        "Aucun compte trouvé avec cet e-mail. Créez-le d'abord dans Supabase (Authentication > Users), puis réessayez.",
+      )
+      return
+    }
+    if (existing.role === 'admin') {
+      setMemberSaving(false)
+      setMemberError("Ce compte est un compte administrateur Elodiatech, il ne peut pas être affecté à un cabinet.")
+      return
+    }
+
     const { data, error } = await supabase
       .from('profiles')
       .update({
@@ -98,6 +134,7 @@ export default function CabinetDetail() {
         last_name: memberLastName.trim() || undefined,
       })
       .eq('email', memberEmail.trim())
+      .neq('role', 'admin')
       .select()
 
     setMemberSaving(false)
@@ -231,7 +268,7 @@ export default function CabinetDetail() {
       to: `/cabinets/${id}/portails`,
       linkLabel: 'Configurer',
     },
-    { label: 'Déposer un premier document (fiche de paie…)', done: documentCount > 0 },
+    { label: 'Déposer un premier document (fiche de paie…)', done: documents.length > 0 },
   ]
   const onboardingComplete = onboardingSteps.every((s) => s.done)
 
@@ -479,6 +516,47 @@ export default function CabinetDetail() {
                       )}
                     </div>
                   )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
+
+      <Card title={`Documents du cabinet${documents.length > 0 ? ` (${documents.length})` : ''}`}>
+        {documents.length === 0 ? (
+          <p className="text-sm text-slate-600">Aucun document déposé pour ce cabinet pour le moment.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-slate-100">
+            {documents.map((doc) => {
+              const emp = employees.find((e) => e.id === doc.employee_id)
+              return (
+                <div key={doc.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                  <div>
+                    <p className="font-medium text-slate-900">{doc.document_name}</p>
+                    <p className="text-xs text-slate-500">
+                      {DOCUMENT_TYPE_LABELS[doc.document_type]}
+                      {emp ? ` · ${emp.first_name} ${emp.last_name}` : ' · Cabinet entier'}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    {doc.macompta_paie_url && (
+                      <a
+                        href={doc.macompta_paie_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900"
+                      >
+                        Ouvrir <ExternalLink size={12} />
+                      </a>
+                    )}
+                    <button
+                      onClick={() => deleteDocument(doc.id)}
+                      className="text-xs font-medium text-red-600 hover:text-red-700"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
               )
             })}
