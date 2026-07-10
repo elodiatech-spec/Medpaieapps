@@ -24,8 +24,9 @@ tableau de bord Supabase (**Edge Functions** → **Deploy a new function** →
 3. Pour `payroll-reminders` et `monthly-invoice` : dans les réglages de la
    fonction, **désactiver "Enforce JWT Verification"** (elles sont appelées
    par `pg_cron`, pas par un utilisateur connecté).
-4. **Webhook** pour `notify-validation` : Database → Webhooks → Create a new
-   webhook → table `payroll_variables`, événement `UPDATE`, cible la
-   fonction `notify-validation`.
+4. **Déclencheur** pour `notify-validation` : exécuter
+   `supabase/migrations/0006_notify_validation_trigger.sql` dans le SQL
+   Editor (trigger SQL direct via `pg_net`, plus simple qu'un Database
+   Webhook et fonctionne quelle que soit la version du tableau de bord).
 5. **Cron** : exécuter `supabase/migrations/0005_cron_jobs.sql` dans le SQL
    Editor (les valeurs du projet y sont déjà renseignées).
