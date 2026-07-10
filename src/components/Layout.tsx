@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Users,
   Banknote,
+  Sparkles,
+  ExternalLink,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useAdminAlerts } from '../hooks/useAdminAlerts'
@@ -32,7 +34,16 @@ interface NavItem {
   mobile?: boolean
   // Nom de la clé sous laquelle afficher une pastille de compte (voir useAdminAlerts).
   badge?: 'admin-alerts'
+  // Lien externe (ouvert dans un nouvel onglet) plutôt qu'une route interne.
+  external?: boolean
 }
+
+// Assistant réglementaire (convention collective, paie) — agent IA créé par
+// Elodiatech, hébergé sur Gemini. Un lien de partage Gemini ne peut pas être
+// affiché en cadre intégré dans MedPaie (Google bloque volontairement
+// l'iframe sur ses pages, pour des raisons de sécurité) : il s'ouvre donc
+// dans un nouvel onglet.
+const AI_ASSISTANT_URL = 'https://share.gemini.google/BfuyM4LuisIo'
 
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
@@ -41,6 +52,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/gestion-paie', label: 'Gestion de paie', icon: Banknote },
     { to: '/chiffres', label: 'Statistiques', icon: BarChart3, mobile: false },
     { to: '/factures', label: 'Factures', icon: Receipt, mobile: false },
+    { to: AI_ASSISTANT_URL, label: 'Assistant IA', icon: Sparkles, mobile: false, external: true },
   ],
   employer: [
     { to: '/', label: 'Accueil', icon: LayoutDashboard, end: true },
@@ -95,24 +107,38 @@ export default function Layout() {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                  isActive
-                    ? 'bg-brand-50 text-brand-700'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`
-              }
-            >
-              <item.icon size={18} />
-              {item.label}
-              {item.badge === 'admin-alerts' && <AdminAlertBadge className="ml-auto" />}
-            </NavLink>
-          ))}
+          {navItems.map((item) =>
+            item.external ? (
+              <a
+                key={item.to}
+                href={item.to}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+              >
+                <item.icon size={18} />
+                {item.label}
+                <ExternalLink size={13} className="ml-auto text-slate-400" />
+              </a>
+            ) : (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
+                    isActive
+                      ? 'bg-brand-50 text-brand-700'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`
+                }
+              >
+                <item.icon size={18} />
+                {item.label}
+                {item.badge === 'admin-alerts' && <AdminAlertBadge className="ml-auto" />}
+              </NavLink>
+            ),
+          )}
         </nav>
 
         <div className="mt-auto border-t border-slate-200 pt-4">
