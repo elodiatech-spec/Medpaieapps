@@ -1,6 +1,6 @@
-# Fonctions Edge — notifications & facturation
+# Fonctions Edge — notifications, facturation & comptes
 
-Quatre fonctions autonomes (aucun fichier partagé), à déployer depuis le
+Cinq fonctions autonomes (aucun fichier partagé), à déployer depuis le
 tableau de bord Supabase (**Edge Functions** → **Deploy a new function** →
 **Via Editor**, coller le contenu de chaque `index.ts`) :
 
@@ -18,19 +18,27 @@ tableau de bord Supabase (**Edge Functions** → **Deploy a new function** →
   travail, accident de trajet, maternité) n'en a pas, ou que celui-ci
   n'est pas encore validé par l'admin. Déclenchée quotidiennement par
   `pg_cron`.
+- **create-account** : permet à l'admin de créer, directement depuis la
+  fiche d'un cabinet dans l'application, le compte d'un médecin ou d'une
+  assistante (sans passer par le tableau de bord Supabase). Vérifie que
+  l'appelant est bien un admin avant de créer le compte avec la clé de
+  service, puis un e-mail « définir votre mot de passe » est envoyé à la
+  personne. Déclenchée par le formulaire "Créer un compte" de la fiche
+  cabinet.
 
 ## Étapes de mise en service
 
 1. **Secret** : Project Settings → Edge Functions → Secrets → ajouter
    `RESEND_API_KEY` avec la clé Resend (`re_...`). Ne jamais mettre cette
    clé dans le code du dépôt.
-2. **Déployer** les 4 fonctions via l'éditeur du tableau de bord, en leur
+2. **Déployer** les 5 fonctions via l'éditeur du tableau de bord, en leur
    donnant exactement les noms `payroll-reminders`, `notify-validation`,
-   `monthly-invoice` et `justification-reminders`.
+   `monthly-invoice`, `justification-reminders` et `create-account`.
 3. Pour `payroll-reminders`, `monthly-invoice` et `justification-reminders` :
    dans les réglages de la fonction, **désactiver "Enforce JWT
    Verification"** (elles sont appelées par `pg_cron`, pas par un
-   utilisateur connecté). Laisser activé pour `notify-validation`.
+   utilisateur connecté). Laisser activé pour `notify-validation` et
+   `create-account` (appelées par un utilisateur connecté).
 4. **Déclencheurs** pour `notify-validation` : exécuter
    `supabase/migrations/0006_notify_validation_trigger.sql` puis
    `supabase/migrations/0011_notify_justification_uploaded_trigger.sql` dans

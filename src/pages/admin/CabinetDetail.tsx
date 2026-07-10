@@ -71,6 +71,15 @@ export default function CabinetDetail() {
   const [memberSaving, setMemberSaving] = useState(false)
   const [memberError, setMemberError] = useState<string | null>(null)
 
+  const [newEmail, setNewEmail] = useState('')
+  const [newFirstName, setNewFirstName] = useState('')
+  const [newLastName, setNewLastName] = useState('')
+  const [newRole, setNewRole] = useState<Role>('employee')
+  const [creating, setCreating] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const [createSuccess, setCreateSuccess] = useState<string | null>(null)
+  const [showExistingForm, setShowExistingForm] = useState(false)
+
   async function load() {
     if (!id) return
     const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }, { count: portals }, { data: docs }] =
@@ -151,6 +160,43 @@ export default function CabinetDetail() {
     setMemberEmail('')
     setMemberFirstName('')
     setMemberLastName('')
+    await load()
+  }
+
+  async function createAccount(e: FormEvent) {
+    e.preventDefault()
+    if (!id || !newEmail.trim() || !newFirstName.trim() || !newLastName.trim()) return
+    setCreating(true)
+    setCreateError(null)
+    setCreateSuccess(null)
+
+    const { data, error } = await supabase.functions.invoke('create-account', {
+      body: {
+        email: newEmail.trim(),
+        firstName: newFirstName.trim(),
+        lastName: newLastName.trim(),
+        role: newRole,
+        cabinetId: id,
+      },
+    })
+
+    if (error || data?.error) {
+      setCreating(false)
+      setCreateError(data?.error ?? error?.message ?? 'Une erreur est survenue.')
+      return
+    }
+
+    await supabase.auth.resetPasswordForEmail(newEmail.trim(), {
+      redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+    })
+
+    setCreating(false)
+    setCreateSuccess(
+      `Compte créé. Un e-mail a été envoyé à ${newEmail.trim()} pour définir son mot de passe.`,
+    )
+    setNewEmail('')
+    setNewFirstName('')
+    setNewLastName('')
     await load()
   }
 
@@ -364,28 +410,19 @@ export default function CabinetDetail() {
           </div>
         )}
 
-        <form onSubmit={assignMember} className="flex flex-col gap-4 border-t border-slate-100 pt-4">
+        <form onSubmit={createAccount} className="flex flex-col gap-4 border-t border-slate-100 pt-4">
           <p className="text-sm text-slate-600">
-            Affecter un compte déjà créé dans Supabase (Authentication &gt; Users) à ce cabinet.
+            Créer le compte d'un médecin ou d'une assistante pour ce cabinet. La personne reçoit
+            un e-mail pour définir son mot de passe.
           </p>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">E-mail du compte</label>
-            <input
-              type="email"
-              required
-              value={memberEmail}
-              onChange={(e) => setMemberEmail(e.target.value)}
-              placeholder="assistante@cabinet.fr"
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-            />
-          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-medium text-slate-700">Prénom</label>
               <input
                 type="text"
-                value={memberFirstName}
-                onChange={(e) => setMemberFirstName(e.target.value)}
+                required
+                value={newFirstName}
+                onChange={(e) => setNewFirstName(e.target.value)}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               />
             </div>
@@ -393,17 +430,29 @@ export default function CabinetDetail() {
               <label className="text-sm font-medium text-slate-700">Nom</label>
               <input
                 type="text"
-                value={memberLastName}
-                onChange={(e) => setMemberLastName(e.target.value)}
+                required
+                value={newLastName}
+                onChange={(e) => setNewLastName(e.target.value)}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">E-mail</label>
+            <input
+              type="email"
+              required
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder="assistante@cabinet.fr"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
             <label className="text-sm font-medium text-slate-700">Rôle</label>
             <select
-              value={memberRole}
-              onChange={(e) => setMemberRole(e.target.value as Role)}
+              value={newRole}
+              onChange={(e) => setNewRole(e.target.value as Role)}
               className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
             >
               <option value="employee">Assistante médicale</option>
@@ -411,16 +460,84 @@ export default function CabinetDetail() {
             </select>
           </div>
 
-          {memberError && <p className="text-sm text-red-600">{memberError}</p>}
+          {createError && <p className="text-sm text-red-600">{createError}</p>}
+          {createSuccess && <p className="text-sm text-brand-700">{createSuccess}</p>}
 
           <button
             type="submit"
-            disabled={memberSaving}
+            disabled={creating}
             className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
-            <UserPlus size={16} /> Affecter au cabinet
+            <UserPlus size={16} /> {creating ? 'Création…' : 'Créer le compte'}
           </button>
         </form>
+
+        <div className="border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            onClick={() => setShowExistingForm((s) => !s)}
+            className="text-xs font-medium text-slate-500 hover:text-slate-700"
+          >
+            {showExistingForm ? 'Masquer' : 'Ou affecter un compte déjà créé (inscrit lui-même sur /inscription)'}
+          </button>
+
+          {showExistingForm && (
+            <form onSubmit={assignMember} className="mt-4 flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-slate-700">E-mail du compte existant</label>
+                <input
+                  type="email"
+                  required
+                  value={memberEmail}
+                  onChange={(e) => setMemberEmail(e.target.value)}
+                  placeholder="assistante@cabinet.fr"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-slate-700">Prénom</label>
+                  <input
+                    type="text"
+                    value={memberFirstName}
+                    onChange={(e) => setMemberFirstName(e.target.value)}
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-sm font-medium text-slate-700">Nom</label>
+                  <input
+                    type="text"
+                    value={memberLastName}
+                    onChange={(e) => setMemberLastName(e.target.value)}
+                    className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-slate-700">Rôle</label>
+                <select
+                  value={memberRole}
+                  onChange={(e) => setMemberRole(e.target.value as Role)}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                >
+                  <option value="employee">Assistante médicale</option>
+                  <option value="employer">Médecin employeur</option>
+                </select>
+              </div>
+
+              {memberError && <p className="text-sm text-red-600">{memberError}</p>}
+
+              <button
+                type="submit"
+                disabled={memberSaving}
+                className="flex w-fit items-center gap-1.5 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              >
+                <UserPlus size={16} /> Affecter au cabinet
+              </button>
+            </form>
+          )}
+        </div>
       </Card>
 
       <Card
