@@ -11,8 +11,12 @@ import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
 import Documents from './pages/cabinet/Documents'
 import MyFile from './pages/cabinet/MyFile'
+import Messaging from './pages/cabinet/Messaging'
 import AdminHome from './pages/admin/AdminHome'
 import CabinetDetail from './pages/admin/CabinetDetail'
+import CabinetEdit from './pages/admin/CabinetEdit'
+import CabinetMessaging from './pages/admin/CabinetMessaging'
+import Portals from './pages/admin/Portals'
 import MemberFile from './pages/admin/MemberFile'
 import Invoices from './pages/admin/Invoices'
 
@@ -73,12 +77,44 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/messagerie"
+              element={
+                <ProtectedRoute allow={['employer', 'employee']}>
+                  <Messaging />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/cabinets/:id"
               element={
                 <ProtectedRoute allow={['admin']}>
                   <CabinetDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cabinets/:id/modifier"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <CabinetEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cabinets/:id/portails"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <Portals />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cabinets/:id/messagerie"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <CabinetMessaging />
                 </ProtectedRoute>
               }
             />

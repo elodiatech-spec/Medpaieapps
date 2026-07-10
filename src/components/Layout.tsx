@@ -9,6 +9,7 @@ import {
   LogOut,
   Stethoscope,
   IdCard,
+  MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../lib/database.types'
@@ -30,6 +31,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/variables', label: 'Variables', icon: ClipboardList },
     { to: '/conges', label: 'Congés', icon: CalendarDays },
     { to: '/documents', label: 'Documents', icon: FileText },
+    { to: '/messagerie', label: 'Messagerie', icon: MessageCircle },
   ],
   employee: [
     { to: '/', label: 'Accueil', icon: LayoutDashboard, end: true },
@@ -37,6 +39,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/conges', label: 'Congés', icon: CalendarDays },
     { to: '/documents', label: 'Documents', icon: FileText },
     { to: '/dossier', label: 'Mon dossier', icon: IdCard },
+    { to: '/messagerie', label: 'Messagerie', icon: MessageCircle },
   ],
 }
 

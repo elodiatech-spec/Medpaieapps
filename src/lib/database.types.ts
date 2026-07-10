@@ -26,6 +26,42 @@ export interface Cabinet {
   billing_commitment: BillingCommitment
   active: boolean
   created_at: string
+  // Fiche établissement
+  siret: string | null
+  naf_code: string | null
+  address: string | null
+  contact_phone: string | null
+  contact_email: string | null
+  convention_code: string | null
+  at_mp_risk_code: string | null
+  at_mp_rate: number | null
+  bank_iban: string | null
+  bank_bic: string | null
+  urssaf_region: string | null
+  retirement_org: string | null
+  prevoyance_org_name: string | null
+  prevoyance_contract_number: string | null
+  mutuelle_org_name: string | null
+  mutuelle_contract_number: string | null
+}
+
+export interface PortalCredential {
+  id: string
+  cabinet_id: string
+  portal_name: string
+  portal_url: string | null
+  username: string | null
+  secret_id: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface Message {
+  id: string
+  cabinet_id: string
+  sender_id: string
+  body: string
+  created_at: string
 }
 
 export type Gender = 'homme' | 'femme'

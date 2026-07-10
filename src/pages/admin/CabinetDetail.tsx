@@ -153,10 +153,34 @@ export default function CabinetDetail() {
         <Link to="/" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800">
           <ArrowLeft size={16} /> Retour
         </Link>
-        <h1 className="text-xl font-semibold text-slate-900">{cabinet.name}</h1>
-        <p className="text-sm text-slate-500">
-          {PLAN_LABELS[cabinet.plan]} · {employees.length} salarié(s)
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">{cabinet.name}</h1>
+            <p className="text-sm text-slate-500">
+              {PLAN_LABELS[cabinet.plan]} · {employees.length} salarié(s)
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Link
+              to={`/cabinets/${id}/modifier`}
+              className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Modifier
+            </Link>
+            <Link
+              to={`/cabinets/${id}/portails`}
+              className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Portails & coffre-fort
+            </Link>
+            <Link
+              to={`/cabinets/${id}/messagerie`}
+              className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              Messagerie
+            </Link>
+          </div>
+        </div>
       </div>
 
       <Card title="Membres du cabinet">
