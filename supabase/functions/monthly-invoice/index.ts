@@ -59,6 +59,7 @@ Deno.serve(async () => {
       .select('*', { count: 'exact', head: true })
       .eq('cabinet_id', cabinet.id)
       .eq('role', 'employee')
+      .eq('active', true)
 
     const price = PRICES[cabinet.plan] ?? PRICES.medi_paie_solo
     const amount = cabinet.billing_commitment === 'engagement_12_mois' ? price.engaged : price.free

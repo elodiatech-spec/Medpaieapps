@@ -95,6 +95,7 @@ export interface Profile {
   role: Role
   email: string
   phone: string | null
+  active: boolean
   // État civil
   birth_name: string | null
   birth_date: string | null

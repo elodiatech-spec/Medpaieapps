@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import {
   LayoutDashboard,
   ClipboardList,
@@ -10,6 +10,7 @@ import {
   IdCard,
   MessageCircle,
   BarChart3,
+  Settings,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useAdminAlerts } from '../hooks/useAdminAlerts'
@@ -114,14 +115,27 @@ export default function Layout() {
             {profile.first_name} {profile.last_name}
           </p>
           <p className="truncate text-xs text-slate-500">{ROLE_LABELS[profile.role]}</p>
+          <Link
+            to="/mon-compte"
+            className="mt-3 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+          >
+            <Settings size={16} />
+            Mon compte
+          </Link>
           <button
             onClick={() => signOut()}
-            className="mt-3 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+            className="mt-2 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
           >
             <LogOut size={16} />
             Déconnexion
           </button>
           <PoweredByElodiatech className="mt-4" />
+          <Link
+            to="/mentions-legales"
+            className="mt-2 block text-center text-[11px] text-slate-300 hover:text-slate-500"
+          >
+            Mentions légales
+          </Link>
         </div>
       </aside>
 
@@ -131,9 +145,14 @@ export default function Layout() {
           <Logo size={32} />
           <span className="font-semibold text-slate-900">MedPaie</span>
         </div>
-        <button onClick={() => signOut()} className="text-slate-500">
-          <LogOut size={20} />
-        </button>
+        <div className="flex items-center gap-3">
+          <Link to="/mon-compte" className="text-slate-500">
+            <Settings size={20} />
+          </Link>
+          <button onClick={() => signOut()} className="text-slate-500">
+            <LogOut size={20} />
+          </button>
+        </div>
       </header>
 
       <main className="flex-1 pb-20 md:pb-8">

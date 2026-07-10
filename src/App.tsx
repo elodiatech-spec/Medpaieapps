@@ -7,6 +7,8 @@ import Signup from './pages/Signup'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Offers from './pages/Offers'
+import Legal from './pages/Legal'
+import Account from './pages/Account'
 import Overview from './pages/cabinet/Overview'
 import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
@@ -22,6 +24,7 @@ import CabinetMessaging from './pages/admin/CabinetMessaging'
 import Portals from './pages/admin/Portals'
 import MemberFile from './pages/admin/MemberFile'
 import Invoices from './pages/admin/Invoices'
+import NotFound from './pages/NotFound'
 
 function RoleHome() {
   const { profile } = useAuth()
@@ -39,6 +42,7 @@ export default function App() {
           <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
           <Route path="/reinitialiser-mot-de-passe" element={<ResetPassword />} />
           <Route path="/offres" element={<Offers />} />
+          <Route path="/mentions-legales" element={<Legal />} />
           <Route
             element={
               <ProtectedRoute>
@@ -47,6 +51,7 @@ export default function App() {
             }
           >
             <Route path="/" element={<RoleHome />} />
+            <Route path="/mon-compte" element={<Account />} />
 
             <Route
               path="/variables"
@@ -155,6 +160,8 @@ export default function App() {
               }
             />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

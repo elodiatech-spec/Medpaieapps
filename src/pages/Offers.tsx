@@ -158,7 +158,10 @@ export default function Offers() {
         </p>
       </section>
 
-      <footer className="border-t border-slate-100 py-6">
+      <footer className="flex flex-col items-center gap-3 border-t border-slate-100 py-6">
+        <Link to="/mentions-legales" className="text-xs text-slate-400 hover:text-slate-600">
+          Mentions légales &amp; confidentialité
+        </Link>
         <PoweredByElodiatech />
       </footer>
     </div>

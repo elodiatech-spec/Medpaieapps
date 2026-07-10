@@ -39,6 +39,12 @@ Après la première migration, créez au moins un cabinet réel (autre que le ca
 utilisé par défaut) et affectez-y vos utilisateurs (`cabinet_id`, `role`) depuis la table
 `profiles`, par exemple via le SQL Editor ou une interface d'administration Supabase.
 
+### Données de démonstration
+
+Pour tester l'application avec du contenu déjà rempli (heures, congés, variables de paie,
+document) sans utiliser un vrai cabinet client : voir `supabase/seed_demo.sql` (instructions en
+en-tête du fichier) et `supabase/seed_demo_cleanup.sql` pour tout supprimer ensuite.
+
 ## Ce qui est couvert dans ce scaffold initial
 
 - Authentification Supabase (email / mot de passe) et récupération du rôle.
@@ -47,12 +53,11 @@ utilisé par défaut) et affectez-y vos utilisateurs (`cabinet_id`, `role`) depu
 - Dashboard Admin (liste des cabinets, détail par cabinet, export CSV, injection de liens
   documents, facturation).
 
-## Prochaines étapes (hors scope de ce premier commit)
+## Prochaines étapes (en attente d'accès externes)
 
+- Encaissement réel des factures (Stripe ou équivalent) — en attente de la clé API.
 - Scanner mobile + OCR pour les justificatifs (arrêts de travail, notes de frais).
-- Moteur de notifications automatisées (rappel J25, alerte retard J27) via Supabase Edge
-  Functions / `pg_cron`.
-- Messagerie interne sécurisée et chatbot IA réglementaire (IDCC 3206).
-- Intégration API Google Drive pour l'archivage automatique des documents.
-- Intégration API macompta.fr / Net-Entreprises / URSSAF et génération automatisée des
-  factures mensuelles (Edge Function du 1er du mois).
+- Chatbot IA réglementaire (IDCC 3206).
+- Génération d'un vrai PDF pour la fiche de paie et intégration API macompta.fr / Net-Entreprises
+  / URSSAF (en attendant, l'admin injecte un lien direct vers la fiche de paie macompta.fr depuis
+  la fiche cabinet).

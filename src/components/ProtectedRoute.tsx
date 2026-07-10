@@ -39,6 +39,23 @@ export default function ProtectedRoute({
     )
   }
 
+  if (!profile.active) {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center gap-3 px-4 text-center">
+        <p className="text-sm text-slate-600">
+          Ce compte a été désactivé. Contactez votre administrateur Elodiatech si vous pensez
+          qu'il s'agit d'une erreur.
+        </p>
+        <button
+          onClick={() => signOut()}
+          className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Se déconnecter
+        </button>
+      </div>
+    )
+  }
+
   if (allow && !allow.includes(profile.role)) return <Navigate to="/" replace />
 
   return <>{children}</>

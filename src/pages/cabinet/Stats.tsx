@@ -36,7 +36,12 @@ export default function Stats() {
       const firstMonth = months[0]
 
       const [{ data: employees }, { data: entries }, { data: absences }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('cabinet_id', profile.cabinet_id).eq('role', 'employee'),
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('cabinet_id', profile.cabinet_id)
+          .eq('role', 'employee')
+          .eq('active', true),
         supabase
           .from('time_entries')
           .select('*')

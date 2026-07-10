@@ -6,6 +6,49 @@ import { formatDate } from '../../lib/format'
 import Card from '../../components/Card'
 import type { Profile } from '../../lib/database.types'
 
+function StatusToggle({ member, onChanged }: { member: Profile; onChanged: (m: Profile) => void }) {
+  const [saving, setSaving] = useState(false)
+
+  async function toggle() {
+    setSaving(true)
+    const { data } = await supabase
+      .from('profiles')
+      .update({ active: !member.active })
+      .eq('id', member.id)
+      .select()
+      .single()
+    setSaving(false)
+    if (data) onChanged(data as Profile)
+  }
+
+  return (
+    <Card title="Statut du compte">
+      <div className="flex items-center justify-between">
+        <span className={`text-sm font-medium ${member.active ? 'text-brand-700' : 'text-red-600'}`}>
+          {member.active ? 'Compte actif' : 'Compte désactivé'}
+        </span>
+        <button
+          onClick={toggle}
+          disabled={saving}
+          className={`rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 ${
+            member.active
+              ? 'border border-red-200 text-red-600 hover:bg-red-50'
+              : 'bg-brand-600 text-white hover:bg-brand-700'
+          }`}
+        >
+          {member.active ? 'Désactiver ce compte' : 'Réactiver ce compte'}
+        </button>
+      </div>
+      {member.active === false && (
+        <p className="mt-2 text-xs text-slate-500">
+          Ce compte ne peut plus se connecter à MedPaie et n'est plus compté dans les effectifs
+          facturés.
+        </p>
+      )}
+    </Card>
+  )
+}
+
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Admin Elodiatech',
   employer: 'Médecin employeur',
@@ -60,6 +103,8 @@ export default function MemberFile() {
           {ROLE_LABELS[member.role]} · {member.email}
         </p>
       </div>
+
+      {member.role !== 'admin' && <StatusToggle member={member} onChanged={setMember} />}
 
       <Card title="État civil">
         <div className="flex flex-col divide-y divide-slate-100">

@@ -38,7 +38,11 @@ export default function AdminStats() {
 
       const [{ data: cabinetData }, { count: employeeCount }, { data: invoiceData }] = await Promise.all([
         supabase.from('cabinets').select('*').eq('active', true),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'employee'),
+        supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'employee')
+          .eq('active', true),
         supabase.from('invoices').select('*').gte('period', months[0]),
       ])
 

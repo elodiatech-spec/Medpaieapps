@@ -43,6 +43,7 @@ export default function AdminHome() {
       .from('profiles')
       .select('cabinet_id, role')
       .eq('role', 'employee')
+      .eq('active', true)
 
     const counts: Record<string, number> = {}
     for (const p of profileData ?? []) {

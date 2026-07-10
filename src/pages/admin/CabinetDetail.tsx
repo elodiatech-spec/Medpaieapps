@@ -40,6 +40,7 @@ export default function CabinetDetail() {
   const [loading, setLoading] = useState(true)
 
   const employees = members.filter((m) => m.role === 'employee')
+  const activeEmployeeCount = employees.filter((m) => m.active).length
 
   const [employeeId, setEmployeeId] = useState('')
   const [docName, setDocName] = useState('')
@@ -169,7 +170,7 @@ export default function CabinetDetail() {
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{cabinet.name}</h1>
             <p className="text-sm text-slate-500">
-              {PLAN_LABELS[cabinet.plan]} · {employees.length} salarié(s)
+              {PLAN_LABELS[cabinet.plan]} · {activeEmployeeCount} salarié(s) actif(s)
             </p>
           </div>
           <div className="flex gap-2">
@@ -209,6 +210,11 @@ export default function CabinetDetail() {
                 <div>
                   <p className="font-medium text-slate-900">
                     {m.first_name} {m.last_name}
+                    {!m.active && (
+                      <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+                        Désactivé
+                      </span>
+                    )}
                   </p>
                   <p className="text-slate-500">{m.email}</p>
                 </div>

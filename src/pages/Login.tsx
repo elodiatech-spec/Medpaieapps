@@ -97,6 +97,12 @@ export default function Login() {
         </Link>
 
         <PoweredByElodiatech className="mt-8" />
+        <Link
+          to="/mentions-legales"
+          className="mt-3 block text-center text-xs text-slate-400 hover:text-slate-600"
+        >
+          Mentions légales &amp; confidentialité
+        </Link>
       </div>
     </div>
   )
