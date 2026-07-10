@@ -39,6 +39,7 @@ export function useAdminAlerts(): AdminAlerts {
         .from('profiles')
         .select('*')
         .eq('cabinet_id', 'a-affecter')
+        .neq('role', 'admin')
         .order('created_at', { ascending: false })
       setPendingJustifications([])
       setPendingAccounts((pending as Profile[]) ?? [])
@@ -56,7 +57,12 @@ export function useAdminAlerts(): AdminAlerts {
           .neq('status', 'rejected')
           .in('leave_type', JUSTIFICATION_REQUIRED_TYPES)
           .in('cabinet_id', activeCabinetIds),
-        supabase.from('profiles').select('*').eq('cabinet_id', 'a-affecter').order('created_at', { ascending: false }),
+        supabase
+          .from('profiles')
+          .select('*')
+          .eq('cabinet_id', 'a-affecter')
+          .neq('role', 'admin')
+          .order('created_at', { ascending: false }),
         supabase
           .from('payroll_variables')
           .select('*', { count: 'exact', head: true })
