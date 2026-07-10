@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
 import Card from '../../components/Card'
 import StatusBadge from '../../components/StatusBadge'
+import LeaveCalendar from '../../components/LeaveCalendar'
 import {
   PLAN_LABELS,
   type Cabinet,
@@ -52,7 +53,7 @@ export default function CabinetDetail() {
       supabase.from('cabinets').select('*').eq('id', id).single(),
       supabase.from('profiles').select('*').eq('cabinet_id', id),
       supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
-      supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(10),
+      supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(50),
     ])
     setCabinet(cab as Cabinet)
     setMembers((mem as Profile[]) ?? [])
@@ -276,6 +277,10 @@ export default function CabinetDetail() {
             })}
           </div>
         )}
+      </Card>
+
+      <Card title="Congés">
+        <LeaveCalendar leaves={leaves} employees={new Map(members.map((m) => [m.id, m]))} />
       </Card>
 
       <Card title="Congés récents">
