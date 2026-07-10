@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Download, UserPlus } from 'lucide-react'
+import { ArrowLeft, Download, UserPlus, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
 import Card from '../../components/Card'
@@ -8,6 +8,8 @@ import StatusBadge from '../../components/StatusBadge'
 import LeaveCalendar from '../../components/LeaveCalendar'
 import {
   PLAN_LABELS,
+  LEAVE_TYPE_LABELS,
+  JUSTIFICATION_REQUIRED_TYPES,
   type Cabinet,
   type PayrollVariable,
   type Profile,
@@ -15,6 +17,11 @@ import {
   type DocumentType,
   type Role,
 } from '../../lib/database.types'
+
+async function openJustification(path: string) {
+  const { data } = await supabase.storage.from('justificatifs').createSignedUrl(path, 60)
+  if (data?.signedUrl) window.open(data.signedUrl, '_blank')
+}
 
 const period = currentMonthPeriod()
 
@@ -124,6 +131,11 @@ export default function CabinetDetail() {
     a.download = `variables_${id}_${period}.csv`
     a.click()
     URL.revokeObjectURL(url)
+  }
+
+  async function validateJustification(leaveId: string) {
+    await supabase.from('leave_requests').update({ justification_validated: true }).eq('id', leaveId)
+    await load()
   }
 
   async function addDocument(e: FormEvent) {
@@ -314,12 +326,42 @@ export default function CabinetDetail() {
           <div className="flex flex-col divide-y divide-slate-100">
             {leaves.map((l) => {
               const emp = employees.find((e) => e.id === l.employee_id)
+              const needsJustification = JUSTIFICATION_REQUIRED_TYPES.includes(l.leave_type)
               return (
-                <div key={l.id} className="flex items-center justify-between py-2.5 text-sm">
-                  <span className="text-slate-700">
-                    {emp?.first_name} {emp?.last_name} — {l.start_date} → {l.end_date}
-                  </span>
-                  <StatusBadge status={l.status} />
+                <div key={l.id} className="flex flex-col gap-1.5 py-2.5 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-700">
+                      {emp?.first_name} {emp?.last_name} — {LEAVE_TYPE_LABELS[l.leave_type]} —{' '}
+                      {l.start_date} → {l.end_date}
+                    </span>
+                    <StatusBadge status={l.status} />
+                  </div>
+                  {needsJustification && (
+                    <div className="flex items-center gap-3">
+                      {l.justification_document_url ? (
+                        <>
+                          <button
+                            onClick={() => openJustification(l.justification_document_url!)}
+                            className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-900"
+                          >
+                            Voir le justificatif <ExternalLink size={12} />
+                          </button>
+                          {l.justification_validated ? (
+                            <span className="text-xs font-medium text-brand-700">Validé</span>
+                          ) : (
+                            <button
+                              onClick={() => validateJustification(l.id)}
+                              className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-brand-700"
+                            >
+                              Valider le justificatif
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-xs font-medium text-red-600">Justificatif manquant</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}

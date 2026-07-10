@@ -11,9 +11,26 @@ export type BillingCommitment = 'sans_engagement' | 'engagement_12_mois'
 
 export type PayrollStatus = 'draft' | 'submitted' | 'validated'
 
-export type LeaveType = 'conges_payes' | 'rtt' | 'maladie' | 'evenement_familial'
+export type LeaveType =
+  | 'conges_payes'
+  | 'rtt'
+  | 'maladie'
+  | 'accident_travail'
+  | 'accident_trajet'
+  | 'maternite'
+  | 'conge_parental'
+  | 'evenement_familial'
+  | 'absence_injustifiee'
 
 export type LeaveStatus = 'pending' | 'approved' | 'rejected'
+
+// Types pour lesquels un justificatif est légalement exigé.
+export const JUSTIFICATION_REQUIRED_TYPES: LeaveType[] = [
+  'maladie',
+  'accident_travail',
+  'accident_trajet',
+  'maternite',
+]
 
 export type DocumentType = 'fiche_de_paie' | 'justificatif_absence' | 'facture_mensuelle'
 
@@ -149,6 +166,7 @@ export interface LeaveRequest {
   end_date: string
   leave_type: LeaveType
   justification_document_url: string | null
+  justification_validated: boolean
   status: LeaveStatus
   created_at: string
 }
@@ -189,5 +207,23 @@ export const LEAVE_TYPE_LABELS: Record<LeaveType, string> = {
   conges_payes: 'Congés payés',
   rtt: 'RTT',
   maladie: 'Arrêt maladie',
+  accident_travail: 'Accident du travail',
+  accident_trajet: 'Accident de trajet',
+  maternite: 'Congé maternité',
+  conge_parental: 'Congé parental',
   evenement_familial: 'Événement familial',
+  absence_injustifiee: 'Absence injustifiée',
 }
+
+// Types que l'assistante peut sélectionner dans "Nouvelle demande"
+// (l'absence injustifiée est signalée par le médecin, pas demandée par la salariée).
+export const EMPLOYEE_LEAVE_TYPES: LeaveType[] = [
+  'conges_payes',
+  'rtt',
+  'maladie',
+  'accident_travail',
+  'accident_trajet',
+  'maternite',
+  'conge_parental',
+  'evenement_familial',
+]
