@@ -90,6 +90,12 @@ export default function Login() {
         >
           Mot de passe oublié ?
         </Link>
+        <Link
+          to="/inscription"
+          className="mt-2 block text-center text-sm text-slate-500 hover:text-slate-800"
+        >
+          Pas encore de compte ? Créer un compte
+        </Link>
       </div>
     </div>
   )

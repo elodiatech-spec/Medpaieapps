@@ -1,9 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Building2 } from 'lucide-react'
+import { ArrowRight, Building2, Copy } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import Card from '../../components/Card'
-import { PLAN_LABELS, type BillingCommitment, type Cabinet, type Plan } from '../../lib/database.types'
+import { PLAN_LABELS, type BillingCommitment, type Cabinet, type Plan, type Profile } from '../../lib/database.types'
 
 function slugify(name: string): string {
   const base = name
@@ -28,6 +28,8 @@ export default function AdminHome() {
   const [billing, setBilling] = useState<BillingCommitment>('engagement_12_mois')
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
+  const [pendingAccounts, setPendingAccounts] = useState<Profile[]>([])
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
 
   async function load() {
     const { data: cabinetData } = await supabase
@@ -41,13 +43,26 @@ export default function AdminHome() {
       .select('cabinet_id, role')
       .eq('role', 'employee')
 
+    const { data: pending } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('cabinet_id', 'a-affecter')
+      .order('created_at', { ascending: false })
+
     const counts: Record<string, number> = {}
     for (const p of profileData ?? []) {
       counts[p.cabinet_id] = (counts[p.cabinet_id] ?? 0) + 1
     }
     setHeadcounts(counts)
     setCabinets((cabinetData as Cabinet[]) ?? [])
+    setPendingAccounts((pending as Profile[]) ?? [])
     setLoading(false)
+  }
+
+  function copyEmail(email: string) {
+    navigator.clipboard.writeText(email)
+    setCopiedEmail(email)
+    setTimeout(() => setCopiedEmail(null), 1500)
   }
 
   useEffect(() => {
@@ -86,6 +101,33 @@ export default function AdminHome() {
         <h1 className="text-xl font-semibold text-slate-900">Pilotage multi-cabinets</h1>
         <p className="text-sm text-slate-500">{cabinets.length} cabinet(s) actif(s)</p>
       </div>
+
+      {pendingAccounts.length > 0 && (
+        <Card title="Comptes en attente d'affectation">
+          <p className="mb-3 text-sm text-slate-500">
+            Ces personnes ont créé leur compte mais ne sont affectées à aucun cabinet. Copie
+            l'e-mail et va sur la fiche du bon cabinet pour les affecter.
+          </p>
+          <div className="flex flex-col divide-y divide-slate-100">
+            {pendingAccounts.map((p) => (
+              <div key={p.id} className="flex items-center justify-between py-2.5 text-sm">
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {p.first_name} {p.last_name}
+                  </p>
+                  <p className="text-slate-500">{p.email}</p>
+                </div>
+                <button
+                  onClick={() => copyEmail(p.email)}
+                  className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+                >
+                  <Copy size={12} /> {copiedEmail === p.email ? 'Copié !' : "Copier l'e-mail"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <div className="flex flex-col gap-3">
         {cabinets.map((cabinet) => (
