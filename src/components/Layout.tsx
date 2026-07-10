@@ -11,6 +11,7 @@ import {
   MessageCircle,
   BarChart3,
   Settings,
+  HelpCircle,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useAdminAlerts } from '../hooks/useAdminAlerts'
@@ -116,8 +117,15 @@ export default function Layout() {
           </p>
           <p className="truncate text-xs text-slate-500">{ROLE_LABELS[profile.role]}</p>
           <Link
-            to="/mon-compte"
+            to="/aide"
             className="mt-3 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+          >
+            <HelpCircle size={16} />
+            Aide
+          </Link>
+          <Link
+            to="/mon-compte"
+            className="mt-2 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
           >
             <Settings size={16} />
             Mon compte
@@ -146,6 +154,9 @@ export default function Layout() {
           <span className="font-semibold text-slate-900">MedPaie</span>
         </div>
         <div className="flex items-center gap-3">
+          <Link to="/aide" className="text-slate-500">
+            <HelpCircle size={20} />
+          </Link>
           <Link to="/mon-compte" className="text-slate-500">
             <Settings size={20} />
           </Link>

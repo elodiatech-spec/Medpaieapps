@@ -9,6 +9,7 @@ import ResetPassword from './pages/ResetPassword'
 import Offers from './pages/Offers'
 import Legal from './pages/Legal'
 import Account from './pages/Account'
+import Help from './pages/Help'
 import Overview from './pages/cabinet/Overview'
 import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
@@ -52,6 +53,7 @@ export default function App() {
           >
             <Route path="/" element={<RoleHome />} />
             <Route path="/mon-compte" element={<Account />} />
+            <Route path="/aide" element={<Help />} />
 
             <Route
               path="/variables"
