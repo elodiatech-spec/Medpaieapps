@@ -1,0 +1,227 @@
+import { useEffect, useState, type FormEvent } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { ArrowLeft, Download } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
+import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
+import Card from '../../components/Card'
+import StatusBadge from '../../components/StatusBadge'
+import { PLAN_LABELS, type Cabinet, type PayrollVariable, type Profile, type LeaveRequest, type DocumentType } from '../../lib/database.types'
+
+const period = currentMonthPeriod()
+
+export default function CabinetDetail() {
+  const { id } = useParams<{ id: string }>()
+  const [cabinet, setCabinet] = useState<Cabinet | null>(null)
+  const [employees, setEmployees] = useState<Profile[]>([])
+  const [variables, setVariables] = useState<PayrollVariable[]>([])
+  const [leaves, setLeaves] = useState<LeaveRequest[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const [employeeId, setEmployeeId] = useState('')
+  const [docName, setDocName] = useState('')
+  const [docType, setDocType] = useState<DocumentType>('fiche_de_paie')
+  const [docUrl, setDocUrl] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  async function load() {
+    if (!id) return
+    const [{ data: cab }, { data: emp }, { data: vars }, { data: lvs }] = await Promise.all([
+      supabase.from('cabinets').select('*').eq('id', id).single(),
+      supabase.from('profiles').select('*').eq('cabinet_id', id).eq('role', 'employee'),
+      supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
+      supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(10),
+    ])
+    setCabinet(cab as Cabinet)
+    setEmployees((emp as Profile[]) ?? [])
+    setVariables((vars as PayrollVariable[]) ?? [])
+    setLeaves((lvs as LeaveRequest[]) ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id])
+
+  function exportCsv() {
+    const byEmployee = new Map(employees.map((e) => [e.id, e]))
+    const header = ['nom', 'prenom', 'nir', 'mois', 'heures_sup_25', 'heures_sup_50', 'indemnites_km', 'primes']
+    const rows = variables.map((v) => {
+      const emp = byEmployee.get(v.employee_id)
+      return [
+        emp?.last_name ?? '',
+        emp?.first_name ?? '',
+        emp?.nir ?? '',
+        v.month_period,
+        v.overtime_hours_25,
+        v.overtime_hours_50,
+        v.kilometric_expenses,
+        v.bonus_amount,
+      ].join(';')
+    })
+    const csv = [header.join(';'), ...rows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `variables_${id}_${period}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  async function addDocument(e: FormEvent) {
+    e.preventDefault()
+    if (!id || !docName || !docUrl) return
+    setSaving(true)
+    await supabase.from('documents').insert({
+      cabinet_id: id,
+      employee_id: employeeId || null,
+      document_name: docName,
+      document_type: docType,
+      macompta_paie_url: docUrl,
+      period,
+    })
+    setDocName('')
+    setDocUrl('')
+    setEmployeeId('')
+    setSaving(false)
+    await load()
+  }
+
+  if (loading || !cabinet) return <p className="text-sm text-slate-500">Chargement…</p>
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div>
+        <Link to="/" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800">
+          <ArrowLeft size={16} /> Retour
+        </Link>
+        <h1 className="text-xl font-semibold text-slate-900">{cabinet.name}</h1>
+        <p className="text-sm text-slate-500">
+          {PLAN_LABELS[cabinet.plan]} · {employees.length} salarié(s)
+        </p>
+      </div>
+
+      <Card
+        title={`Variables — ${formatMonthPeriod(period)}`}
+        action={
+          <button
+            onClick={exportCsv}
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <Download size={14} /> Export CSV macompta.fr
+          </button>
+        }
+      >
+        {variables.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucune variable saisie pour ce mois.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-slate-100">
+            {variables.map((v) => {
+              const emp = employees.find((e) => e.id === v.employee_id)
+              return (
+                <div key={v.id} className="flex flex-col gap-1 py-3">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-slate-900">
+                      {emp?.first_name} {emp?.last_name}
+                    </p>
+                    <StatusBadge status={v.status} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 text-sm text-slate-600 sm:grid-cols-4">
+                    <span>HS 25% : {v.overtime_hours_25} h</span>
+                    <span>HS 50% : {v.overtime_hours_50} h</span>
+                    <span>Km : {formatCurrency(v.kilometric_expenses)}</span>
+                    <span>Primes : {formatCurrency(v.bonus_amount)}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
+
+      <Card title="Congés récents">
+        {leaves.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucune demande récente.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-slate-100">
+            {leaves.map((l) => {
+              const emp = employees.find((e) => e.id === l.employee_id)
+              return (
+                <div key={l.id} className="flex items-center justify-between py-2.5 text-sm">
+                  <span className="text-slate-700">
+                    {emp?.first_name} {emp?.last_name} — {l.start_date} → {l.end_date}
+                  </span>
+                  <StatusBadge status={l.status} />
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
+
+      <Card title="Injecter un lien de document (macompta.fr)">
+        <form onSubmit={addDocument} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Salarié (optionnel)</label>
+              <select
+                value={employeeId}
+                onChange={(e) => setEmployeeId(e.target.value)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              >
+                <option value="">— Cabinet entier —</option>
+                {employees.map((e) => (
+                  <option key={e.id} value={e.id}>
+                    {e.first_name} {e.last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-slate-700">Type de document</label>
+              <select
+                value={docType}
+                onChange={(e) => setDocType(e.target.value as DocumentType)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+              >
+                <option value="fiche_de_paie">Fiche de paie</option>
+                <option value="justificatif_absence">Justificatif d'absence</option>
+                <option value="facture_mensuelle">Facture mensuelle</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">Nom du document</label>
+            <input
+              type="text"
+              required
+              value={docName}
+              onChange={(e) => setDocName(e.target.value)}
+              placeholder={`Bulletin de paie — ${formatMonthPeriod(period)}`}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">Lien (macompta.fr / Google Drive)</label>
+            <input
+              type="url"
+              required
+              value={docUrl}
+              onChange={(e) => setDocUrl(e.target.value)}
+              placeholder="https://…"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            Ajouter le document
+          </button>
+        </form>
+      </Card>
+    </div>
+  )
+}
