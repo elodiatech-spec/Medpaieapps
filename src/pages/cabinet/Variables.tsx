@@ -1,0 +1,284 @@
+import { useEffect, useState, type FormEvent } from 'react'
+import { supabase } from '../../lib/supabase'
+import { useAuth } from '../../contexts/AuthContext'
+import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
+import Card from '../../components/Card'
+import StatusBadge from '../../components/StatusBadge'
+import type { PayrollVariable, Profile } from '../../lib/database.types'
+
+const period = currentMonthPeriod()
+
+export default function Variables() {
+  const { profile } = useAuth()
+  if (!profile) return null
+  return profile.role === 'employee' ? <EmployeeVariables /> : <EmployerVariables />
+}
+
+function EmployeeVariables() {
+  const { profile } = useAuth()
+  const [variable, setVariable] = useState<PayrollVariable | null>(null)
+  const [history, setHistory] = useState<PayrollVariable[]>([])
+  const [overtime25, setOvertime25] = useState('0')
+  const [overtime50, setOvertime50] = useState('0')
+  const [km, setKm] = useState('0')
+  const [bonus, setBonus] = useState('0')
+  const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  async function load() {
+    if (!profile) return
+    const [{ data: current }, { data: past }] = await Promise.all([
+      supabase
+        .from('payroll_variables')
+        .select('*')
+        .eq('employee_id', profile.id)
+        .eq('month_period', period)
+        .maybeSingle(),
+      supabase
+        .from('payroll_variables')
+        .select('*')
+        .eq('employee_id', profile.id)
+        .neq('month_period', period)
+        .order('month_period', { ascending: false })
+        .limit(6),
+    ])
+    const cur = current as PayrollVariable | null
+    setVariable(cur)
+    if (cur) {
+      setOvertime25(String(cur.overtime_hours_25))
+      setOvertime50(String(cur.overtime_hours_50))
+      setKm(String(cur.kilometric_expenses))
+      setBonus(String(cur.bonus_amount))
+      setNotes(cur.notes ?? '')
+    }
+    setHistory((past as PayrollVariable[]) ?? [])
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
+
+  const locked = variable?.status === 'submitted' || variable?.status === 'validated'
+
+  async function handleSave(e: FormEvent, submit: boolean) {
+    e.preventDefault()
+    if (!profile) return
+    setSaving(true)
+    const payload = {
+      employee_id: profile.id,
+      cabinet_id: profile.cabinet_id,
+      month_period: period,
+      overtime_hours_25: Number(overtime25) || 0,
+      overtime_hours_50: Number(overtime50) || 0,
+      kilometric_expenses: Number(km) || 0,
+      bonus_amount: Number(bonus) || 0,
+      notes: notes || null,
+      status: submit ? ('submitted' as const) : ('draft' as const),
+      updated_at: new Date().toISOString(),
+    }
+    const { error } = await supabase
+      .from('payroll_variables')
+      .upsert(payload, { onConflict: 'employee_id,month_period' })
+    setSaving(false)
+    if (!error) await load()
+  }
+
+  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-slate-900 capitalize">
+          Variables — {formatMonthPeriod(period)}
+        </h1>
+        {variable && <StatusBadge status={variable.status} />}
+      </div>
+
+      <Card>
+        <form onSubmit={(e) => handleSave(e, false)} className="flex flex-col gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field
+              label="Heures sup. majorées à 25 %"
+              value={overtime25}
+              onChange={setOvertime25}
+              disabled={locked}
+            />
+            <Field
+              label="Heures sup. majorées à 50 %"
+              value={overtime50}
+              onChange={setOvertime50}
+              disabled={locked}
+            />
+            <Field
+              label="Indemnités kilométriques (€)"
+              value={km}
+              onChange={setKm}
+              disabled={locked}
+            />
+            <Field label="Primes (€)" value={bonus} onChange={setBonus} disabled={locked} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-medium text-slate-700">Notes (optionnel)</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              disabled={locked}
+              rows={3}
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50"
+            />
+          </div>
+
+          {locked ? (
+            <p className="text-sm text-slate-500">
+              Votre déclaration a été soumise et n'est plus modifiable. Contactez votre médecin
+              ou votre gestionnaire Elodiatech pour toute correction.
+            </p>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              >
+                Enregistrer le brouillon
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={(e) => handleSave(e, true)}
+                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+              >
+                Soumettre au médecin
+              </button>
+            </div>
+          )}
+        </form>
+      </Card>
+
+      {history.length > 0 && (
+        <Card title="Historique">
+          <div className="flex flex-col divide-y divide-slate-100">
+            {history.map((h) => (
+              <div key={h.id} className="flex items-center justify-between py-2.5 text-sm">
+                <span className="capitalize text-slate-700">{formatMonthPeriod(h.month_period)}</span>
+                <StatusBadge status={h.status} />
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+    </div>
+  )
+}
+
+function EmployerVariables() {
+  const { profile } = useAuth()
+  const [rows, setRows] = useState<(PayrollVariable & { employee?: Profile })[]>([])
+  const [loading, setLoading] = useState(true)
+
+  async function load() {
+    if (!profile) return
+    const { data: employees } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('cabinet_id', profile.cabinet_id)
+      .eq('role', 'employee')
+
+    const { data: variables } = await supabase
+      .from('payroll_variables')
+      .select('*')
+      .eq('cabinet_id', profile.cabinet_id)
+      .eq('month_period', period)
+
+    const byEmployee = new Map((employees as Profile[] | null)?.map((e) => [e.id, e]))
+    const merged = ((variables as PayrollVariable[]) ?? []).map((v) => ({
+      ...v,
+      employee: byEmployee.get(v.employee_id),
+    }))
+    setRows(merged)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile])
+
+  async function validate(id: string) {
+    await supabase.from('payroll_variables').update({ status: 'validated' }).eq('id', id)
+    await load()
+  }
+
+  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+
+  return (
+    <div className="flex flex-col gap-6">
+      <h1 className="text-xl font-semibold text-slate-900 capitalize">
+        Variables — {formatMonthPeriod(period)}
+      </h1>
+
+      <Card>
+        {rows.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucune variable saisie pour ce mois.</p>
+        ) : (
+          <div className="flex flex-col divide-y divide-slate-100">
+            {rows.map((row) => (
+              <div key={row.id} className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-slate-900">
+                    {row.employee?.first_name} {row.employee?.last_name}
+                  </p>
+                  <StatusBadge status={row.status} />
+                </div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-slate-600 sm:grid-cols-4">
+                  <span>HS 25% : {row.overtime_hours_25} h</span>
+                  <span>HS 50% : {row.overtime_hours_50} h</span>
+                  <span>Km : {formatCurrency(row.kilometric_expenses)}</span>
+                  <span>Primes : {formatCurrency(row.bonus_amount)}</span>
+                </div>
+                {row.status === 'submitted' && (
+                  <button
+                    onClick={() => validate(row.id)}
+                    className="mt-1 w-fit rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+                  >
+                    Valider d'un clic
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  )
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  disabled,
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  disabled?: boolean
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-medium text-slate-700">{label}</label>
+      <input
+        type="number"
+        step="0.01"
+        min="0"
+        value={value}
+        disabled={disabled}
+        onChange={(e) => onChange(e.target.value)}
+        className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 disabled:bg-slate-50"
+      />
+    </div>
+  )
+}
