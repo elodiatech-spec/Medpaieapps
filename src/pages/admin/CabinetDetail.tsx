@@ -418,7 +418,7 @@ export default function CabinetDetail() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-slate-700">Lien (macompta.fr / Google Drive)</label>
+            <label className="text-sm font-medium text-slate-700">Lien vers le document (macompta.fr)</label>
             <input
               type="url"
               required
