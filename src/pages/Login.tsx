@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, Link } from 'react-router-dom'
 import { Stethoscope } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { isSupabaseConfigured } from '../lib/supabase'
@@ -83,6 +83,13 @@ export default function Login() {
             {submitting ? 'Connexion…' : 'Se connecter'}
           </button>
         </form>
+
+        <Link
+          to="/mot-de-passe-oublie"
+          className="mt-4 block text-center text-sm text-slate-500 hover:text-slate-800"
+        >
+          Mot de passe oublié ?
+        </Link>
       </div>
     </div>
   )

@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { formatDate } from '../../lib/format'
 import Card from '../../components/Card'
 import StatusBadge from '../../components/StatusBadge'
+import LeaveCalendar from '../../components/LeaveCalendar'
 import { LEAVE_TYPE_LABELS, type LeaveRequest, type LeaveType, type Profile } from '../../lib/database.types'
 
 export default function Leaves() {
@@ -58,6 +59,10 @@ function EmployeeLeaves() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-slate-900">Mes congés</h1>
+
+      <Card title="Calendrier">
+        <LeaveCalendar leaves={leaves} />
+      </Card>
 
       <Card title="Nouvelle demande">
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -174,9 +179,17 @@ function EmployerLeaves() {
 
   if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
 
+  const employeeMap = new Map(
+    leaves.filter((l) => l.employee).map((l) => [l.employee_id, l.employee as Profile]),
+  )
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-slate-900">Congés du cabinet</h1>
+
+      <Card title="Planning de l'équipe">
+        <LeaveCalendar leaves={leaves} employees={employeeMap} />
+      </Card>
 
       <Card>
         {leaves.length === 0 ? (

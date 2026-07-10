@@ -164,7 +164,11 @@ export default function CabinetDetail() {
         ) : (
           <div className="mb-4 flex flex-col divide-y divide-slate-100">
             {members.map((m) => (
-              <div key={m.id} className="flex items-center justify-between py-2.5 text-sm">
+              <Link
+                key={m.id}
+                to={`/cabinets/${id}/membres/${m.id}`}
+                className="flex items-center justify-between py-2.5 text-sm hover:bg-slate-50"
+              >
                 <div>
                   <p className="font-medium text-slate-900">
                     {m.first_name} {m.last_name}
@@ -172,7 +176,7 @@ export default function CabinetDetail() {
                   <p className="text-slate-500">{m.email}</p>
                 </div>
                 <span className="text-xs font-medium text-slate-500">{ROLE_LABELS[m.role]}</span>
-              </div>
+              </Link>
             ))}
           </div>
         )}

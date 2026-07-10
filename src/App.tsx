@@ -3,6 +3,9 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
+import Offers from './pages/Offers'
 import Overview from './pages/cabinet/Overview'
 import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
@@ -10,6 +13,7 @@ import Documents from './pages/cabinet/Documents'
 import MyFile from './pages/cabinet/MyFile'
 import AdminHome from './pages/admin/AdminHome'
 import CabinetDetail from './pages/admin/CabinetDetail'
+import MemberFile from './pages/admin/MemberFile'
 import Invoices from './pages/admin/Invoices'
 
 function RoleHome() {
@@ -24,6 +28,9 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/mot-de-passe-oublie" element={<ForgotPassword />} />
+          <Route path="/reinitialiser-mot-de-passe" element={<ResetPassword />} />
+          <Route path="/offres" element={<Offers />} />
           <Route
             element={
               <ProtectedRoute>
@@ -72,6 +79,14 @@ export default function App() {
               element={
                 <ProtectedRoute allow={['admin']}>
                   <CabinetDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cabinets/:id/membres/:memberId"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <MemberFile />
                 </ProtectedRoute>
               }
             />
