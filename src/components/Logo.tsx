@@ -1,5 +1,5 @@
 // Marque MedPaie (logo fourni par le client).
-export default function Logo({ size = 40 }: { size?: number }) {
+export default function Logo({ size = 40, className = '' }: { size?: number; className?: string }) {
   const radius = size * 0.28
   return (
     <img
@@ -8,7 +8,7 @@ export default function Logo({ size = 40 }: { size?: number }) {
       width={size}
       height={size}
       style={{ width: size, height: size, borderRadius: radius }}
-      className="object-cover"
+      className={`object-cover ${className}`}
     />
   )
 }
