@@ -1,9 +1,6 @@
 -- Planifie l'appel quotidien des rappels de paie et l'appel mensuel de
 -- facturation. À exécuter APRÈS avoir déployé les fonctions Edge
 -- "payroll-reminders" et "monthly-invoice" (voir supabase/functions/README.md).
---
--- Remplacez <PROJECT_REF> et <ANON_KEY> par les valeurs de votre projet
--- avant d'exécuter cette migration.
 
 create extension if not exists pg_cron;
 create extension if not exists pg_net;
@@ -14,8 +11,11 @@ select cron.schedule(
   '0 13 * * *',
   $$
   select net.http_post(
-    url := 'https://<PROJECT_REF>.supabase.co/functions/v1/payroll-reminders',
-    headers := jsonb_build_object('Authorization', 'Bearer <ANON_KEY>', 'Content-Type', 'application/json')
+    url := 'https://mxcykylzbqbpeannnnkt.supabase.co/functions/v1/payroll-reminders',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sb_publishable_Df2y9aoRy4zEr-5RyvzSEQ_7h3L-RQC',
+      'Content-Type', 'application/json'
+    )
   );
   $$
 );
@@ -26,8 +26,11 @@ select cron.schedule(
   '0 8 1 * *',
   $$
   select net.http_post(
-    url := 'https://<PROJECT_REF>.supabase.co/functions/v1/monthly-invoice',
-    headers := jsonb_build_object('Authorization', 'Bearer <ANON_KEY>', 'Content-Type', 'application/json')
+    url := 'https://mxcykylzbqbpeannnnkt.supabase.co/functions/v1/monthly-invoice',
+    headers := jsonb_build_object(
+      'Authorization', 'Bearer sb_publishable_Df2y9aoRy4zEr-5RyvzSEQ_7h3L-RQC',
+      'Content-Type', 'application/json'
+    )
   );
   $$
 );

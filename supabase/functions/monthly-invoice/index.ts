@@ -6,12 +6,32 @@
 // base + envoie un e-mail récapitulatif HTML. La génération d'un vrai PDF
 // joint n'est pas encore implémentée (à ajouter dans un second temps).
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { sendEmail } from '../_shared/resend.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
+
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY')
+  if (!apiKey) {
+    console.error('RESEND_API_KEY manquante — email non envoyé', { to, subject })
+    return
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: Deno.env.get('RESEND_FROM') ?? 'MedPaie <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+    }),
+  })
+  if (!res.ok) {
+    console.error('Échec envoi email Resend', res.status, await res.text())
+  }
+}
 
 const PRICES: Record<string, { engaged: number; free: number }> = {
   medi_paie_solo: { engaged: 79, free: 99 },

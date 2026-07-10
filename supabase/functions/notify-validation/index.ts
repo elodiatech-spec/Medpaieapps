@@ -2,12 +2,32 @@
 // de paie d'un salarié. Déclenché par un Database Webhook Supabase sur
 // UPDATE de la table payroll_variables (voir README des fonctions).
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { sendEmail } from '../_shared/resend.ts'
 
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
+
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  const apiKey = Deno.env.get('RESEND_API_KEY')
+  if (!apiKey) {
+    console.error('RESEND_API_KEY manquante — email non envoyé', { to, subject })
+    return
+  }
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: Deno.env.get('RESEND_FROM') ?? 'MedPaie <onboarding@resend.dev>',
+      to,
+      subject,
+      html,
+    }),
+  })
+  if (!res.ok) {
+    console.error('Échec envoi email Resend', res.status, await res.text())
+  }
+}
 
 Deno.serve(async (req) => {
   const payload = await req.json()
