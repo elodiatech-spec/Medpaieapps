@@ -84,6 +84,7 @@ export default function Offers() {
           }}
         />
         <div className="mx-auto max-w-3xl px-6 py-14 text-center">
+          <img src="/medpaie-logo-full.png" alt="MedPaie" className="mx-auto mb-6 w-56 max-w-full sm:w-64" />
           <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent-100 px-3 py-1 text-xs font-medium text-accent-700">
             <Sparkles size={14} /> Guadeloupe &amp; Martinique
           </p>

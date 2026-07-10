@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { AlertTriangle, ArrowRight, Bell, Building2, Copy, FileWarning } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import Card from '../../components/Card'
+import PageHero from '../../components/PageHero'
 import { useAdminAlerts } from '../../hooks/useAdminAlerts'
 import { PLAN_LABELS, LEAVE_TYPE_LABELS, type BillingCommitment, type Cabinet, type Plan } from '../../lib/database.types'
 
@@ -92,10 +93,17 @@ export default function AdminHome() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">Pilotage multi-cabinets</h1>
-        <p className="text-sm text-slate-600">{cabinets.length} cabinet(s) actif(s)</p>
-      </div>
+      <PageHero
+        eyebrow="Administration Elodiatech"
+        title="Pilotage multi-cabinets"
+        subtitle={`${cabinets.length} cabinet(s) actif(s)`}
+        stat={
+          <div className="rounded-xl bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
+            <p className="text-2xl font-semibold">{alerts.total}</p>
+            <p className="text-xs text-brand-100">à traiter</p>
+          </div>
+        }
+      />
 
       <Card
         title="Centre de notifications"

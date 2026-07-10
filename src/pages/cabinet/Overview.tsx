@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { currentMonthPeriod, formatMonthPeriod, formatDate } from '../../lib/format'
 import Card from '../../components/Card'
+import PageHero from '../../components/PageHero'
 import StatusBadge from '../../components/StatusBadge'
 import {
   JUSTIFICATION_REQUIRED_TYPES,
@@ -118,12 +119,23 @@ export default function Overview() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold text-slate-900">
-          Bonjour {profile.first_name} 👋
-        </h1>
-        <p className="text-sm text-slate-600 capitalize">{formatMonthPeriod(period)}</p>
-      </div>
+      <PageHero
+        eyebrow={formatMonthPeriod(period)}
+        title={`Bonjour ${profile.first_name} 👋`}
+        subtitle={
+          isEmployer
+            ? "Voici où en est votre cabinet ce mois-ci."
+            : 'Voici vos démarches du mois.'
+        }
+        stat={
+          isEmployer && !loading ? (
+            <div className="rounded-xl bg-white/10 px-4 py-3 text-center backdrop-blur-sm">
+              <p className="text-2xl font-semibold">{pendingVariables + pendingLeaves.length}</p>
+              <p className="text-xs text-brand-100">à traiter</p>
+            </div>
+          ) : undefined
+        }
+      />
 
       {loading ? (
         <p className="text-sm text-slate-600">Chargement…</p>
