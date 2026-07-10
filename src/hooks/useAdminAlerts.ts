@@ -28,29 +28,54 @@ export function useAdminAlerts(): AdminAlerts {
   async function load() {
     const period = currentMonthPeriod()
 
-    const [{ data: leaves }, { data: pending }, { count: submittedCount }, { count: leavesCount }, { data: profiles }, { data: cabinets }] =
+    // Un cabinet désactivé (client parti) ne doit plus générer d'alerte : on
+    // limite toutes les requêtes à la liste des cabinets encore actifs.
+    const { data: cabinets } = await supabase.from('cabinets').select('id, name').eq('active', true)
+    const activeCabinetIds = (cabinets ?? []).map((c) => c.id)
+    const cabinetNameMap = new Map((cabinets as { id: string; name: string }[] | null)?.map((c) => [c.id, c.name]))
+
+    if (activeCabinetIds.length === 0) {
+      const { data: pending } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('cabinet_id', 'a-affecter')
+        .order('created_at', { ascending: false })
+      setPendingJustifications([])
+      setPendingAccounts((pending as Profile[]) ?? [])
+      setSubmittedVariablesCount(0)
+      setPendingLeavesCount(0)
+      setLoading(false)
+      return
+    }
+
+    const [{ data: leaves }, { data: pending }, { count: submittedCount }, { count: leavesCount }, { data: profiles }] =
       await Promise.all([
         supabase
           .from('leave_requests')
           .select('*')
           .neq('status', 'rejected')
-          .in('leave_type', JUSTIFICATION_REQUIRED_TYPES),
+          .in('leave_type', JUSTIFICATION_REQUIRED_TYPES)
+          .in('cabinet_id', activeCabinetIds),
         supabase.from('profiles').select('*').eq('cabinet_id', 'a-affecter').order('created_at', { ascending: false }),
         supabase
           .from('payroll_variables')
           .select('*', { count: 'exact', head: true })
           .eq('month_period', period)
-          .eq('status', 'submitted'),
-        supabase.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+          .eq('status', 'submitted')
+          .in('cabinet_id', activeCabinetIds),
+        supabase
+          .from('leave_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending')
+          .in('cabinet_id', activeCabinetIds),
         supabase.from('profiles').select('*'),
-        supabase.from('cabinets').select('id, name').eq('active', true),
       ])
 
     const profileMap = new Map((profiles as Profile[] | null)?.map((p) => [p.id, p]))
-    const cabinetNameMap = new Map((cabinets as { id: string; name: string }[] | null)?.map((c) => [c.id, c.name]))
 
     const missingOrUnvalidated = ((leaves as LeaveRequest[]) ?? [])
       .filter((l) => !l.justification_document_url || !l.justification_validated)
+      .filter((l) => profileMap.get(l.employee_id)?.active !== false)
       .map((l) => ({
         ...l,
         employee: profileMap.get(l.employee_id),

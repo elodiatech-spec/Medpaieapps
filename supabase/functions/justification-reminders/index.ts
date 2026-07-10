@@ -40,12 +40,21 @@ const LEAVE_TYPE_LABELS: Record<string, string> = {
 }
 
 Deno.serve(async () => {
+  // Un cabinet désactivé (client parti) ne doit plus déclencher de relance.
+  const { data: activeCabinets } = await supabase.from('cabinets').select('id').eq('active', true)
+  const activeCabinetIds = (activeCabinets ?? []).map((c) => c.id)
+
+  if (activeCabinetIds.length === 0) {
+    return new Response(JSON.stringify({ done: true, sent: 0 }), { status: 200 })
+  }
+
   const { data: pendingLeaves } = await supabase
     .from('leave_requests')
     .select('id, employee_id, cabinet_id, leave_type, start_date, end_date, justification_document_url, justification_validated')
     .in('leave_type', JUSTIFICATION_REQUIRED_TYPES)
     .neq('status', 'rejected')
     .or('justification_document_url.is.null,justification_validated.eq.false')
+    .in('cabinet_id', activeCabinetIds)
 
   let sent = 0
 
@@ -56,15 +65,19 @@ Deno.serve(async () => {
 
     const { data: employee } = await supabase
       .from('profiles')
-      .select('email, first_name, last_name')
+      .select('email, first_name, last_name, active')
       .eq('id', leave.employee_id)
       .single()
+
+    // Un compte salarié désactivé ne doit plus recevoir de relance.
+    if (employee && employee.active === false) continue
 
     const { data: employers } = await supabase
       .from('profiles')
       .select('email, first_name')
       .eq('cabinet_id', leave.cabinet_id)
       .eq('role', 'employer')
+      .eq('active', true)
 
     if (employee) {
       await sendEmail(

@@ -6,6 +6,7 @@ import type { Profile } from '../lib/database.types'
 interface AuthContextValue {
   session: Session | null
   profile: Profile | null
+  cabinetActive: boolean
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -19,16 +20,23 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
+  const [cabinetActive, setCabinetActive] = useState(true)
   const [loading, setLoading] = useState(true)
 
   async function loadProfile(userId: string) {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*, cabinets(active)')
+      .eq('id', userId)
+      .single()
     if (error) {
       console.error('Erreur de chargement du profil', error)
       setProfile(null)
       return
     }
-    setProfile(data as Profile)
+    const { cabinets, ...profileFields } = data as Profile & { cabinets: { active: boolean } | null }
+    setProfile(profileFields as Profile)
+    setCabinetActive(cabinets?.active ?? true)
   }
 
   useEffect(() => {
@@ -84,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         session,
         profile,
+        cabinetActive,
         loading,
         signIn,
         signOut,

@@ -48,12 +48,14 @@ Deno.serve(async () => {
       .select('id, email, first_name')
       .eq('cabinet_id', cabinet.id)
       .eq('role', 'employee')
+      .eq('active', true)
 
     const { data: employers } = await supabase
       .from('profiles')
       .select('email, first_name')
       .eq('cabinet_id', cabinet.id)
       .eq('role', 'employer')
+      .eq('active', true)
 
     for (const employee of employees ?? []) {
       const { data: variable } = await supabase
