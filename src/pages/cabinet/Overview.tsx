@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ClipboardList, CalendarDays, FileText, ArrowRight } from 'lucide-react'
+import { ClipboardList, CalendarDays, FileText, ArrowRight, IdCard } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { currentMonthPeriod, formatMonthPeriod } from '../../lib/format'
@@ -120,7 +120,7 @@ export default function Overview() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-3 ${!isEmployer ? 'md:grid-cols-4' : ''}`}>
         <Link
           to="/variables"
           className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
@@ -142,6 +142,15 @@ export default function Overview() {
           <FileText className="text-brand-600" size={22} />
           <span className="text-sm font-medium text-slate-800">Documents</span>
         </Link>
+        {!isEmployer && (
+          <Link
+            to="/dossier"
+            className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+          >
+            <IdCard className="text-brand-600" size={22} />
+            <span className="text-sm font-medium text-slate-800">Mon dossier</span>
+          </Link>
+        )}
       </div>
     </div>
   )

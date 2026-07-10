@@ -7,6 +7,7 @@ import Overview from './pages/cabinet/Overview'
 import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
 import Documents from './pages/cabinet/Documents'
+import MyFile from './pages/cabinet/MyFile'
 import AdminHome from './pages/admin/AdminHome'
 import CabinetDetail from './pages/admin/CabinetDetail'
 import Invoices from './pages/admin/Invoices'
@@ -53,6 +54,15 @@ export default function App() {
               element={
                 <ProtectedRoute allow={['employer', 'employee']}>
                   <Documents />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dossier"
+              element={
+                <ProtectedRoute allow={['employee']}>
+                  <MyFile />
                 </ProtectedRoute>
               }
             />

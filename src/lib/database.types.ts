@@ -28,6 +28,12 @@ export interface Cabinet {
   created_at: string
 }
 
+export type Gender = 'homme' | 'femme'
+export type PasRateType = 'personnalise' | 'neutre' | 'individualise'
+export type MutuelleRegime = 'isole' | 'famille'
+export type PrevoyanceCategory = 'cadre' | 'non_cadre'
+export type RetirementTranche = 'T1' | 'T2'
+
 export interface Profile {
   id: string
   cabinet_id: string
@@ -36,14 +42,42 @@ export interface Profile {
   role: Role
   email: string
   phone: string | null
+  // État civil
   birth_name: string | null
   birth_date: string | null
+  birth_place: string | null
+  gender: Gender | null
   address: string | null
   nir: string | null
+  ntt: string | null
   iban: string | null
+  // Contrat de travail
   position_title: string | null
   contract_type: 'cdi' | 'cdd' | null
   work_time_type: 'temps_plein' | 'temps_partiel' | null
+  hire_date: string | null
+  contract_end_date: string | null
+  weekly_hours: number | null
+  coefficient: string | null
+  base_salary: number | null
+  trial_period_end: string | null
+  contract_number: string | null
+  // Congés payés
+  paid_leave_acquired: number | null
+  paid_leave_taken: number | null
+  // Fiscalité — prélèvement à la source
+  pas_rate: number | null
+  pas_rate_type: PasRateType | null
+  pas_start_date: string | null
+  // Protection sociale
+  mutuelle_affiliated: boolean | null
+  mutuelle_date: string | null
+  mutuelle_regime: MutuelleRegime | null
+  mutuelle_waiver_reason: string | null
+  prevoyance_affiliated: boolean | null
+  prevoyance_date: string | null
+  prevoyance_category: PrevoyanceCategory | null
+  retirement_tranche: RetirementTranche | null
   created_at: string
 }
 

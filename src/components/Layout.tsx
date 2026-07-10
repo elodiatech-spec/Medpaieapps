@@ -8,6 +8,7 @@ import {
   Receipt,
   LogOut,
   Stethoscope,
+  IdCard,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../lib/database.types'
@@ -35,6 +36,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/variables', label: 'Variables', icon: ClipboardList },
     { to: '/conges', label: 'Congés', icon: CalendarDays },
     { to: '/documents', label: 'Documents', icon: FileText },
+    { to: '/dossier', label: 'Mon dossier', icon: IdCard },
   ],
 }
 
