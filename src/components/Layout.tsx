@@ -12,6 +12,8 @@ import {
   BarChart3,
   Settings,
   HelpCircle,
+  Users,
+  Banknote,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import { useAdminAlerts } from '../hooks/useAdminAlerts'
@@ -35,7 +37,9 @@ interface NavItem {
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
     { to: '/', label: 'Cabinets', icon: Building2, end: true, badge: 'admin-alerts' },
-    { to: '/chiffres', label: 'Statistiques', icon: BarChart3 },
+    { to: '/salaries', label: 'Salariés', icon: Users },
+    { to: '/gestion-paie', label: 'Gestion de paie', icon: Banknote },
+    { to: '/chiffres', label: 'Statistiques', icon: BarChart3, mobile: false },
     { to: '/factures', label: 'Factures', icon: Receipt, mobile: false },
   ],
   employer: [

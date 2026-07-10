@@ -19,6 +19,8 @@ import Messaging from './pages/cabinet/Messaging'
 import Stats from './pages/cabinet/Stats'
 import AdminHome from './pages/admin/AdminHome'
 import AdminStats from './pages/admin/AdminStats'
+import Employees from './pages/admin/Employees'
+import PayrollManagement from './pages/admin/PayrollManagement'
 import CabinetDetail from './pages/admin/CabinetDetail'
 import CabinetEdit from './pages/admin/CabinetEdit'
 import CabinetMessaging from './pages/admin/CabinetMessaging'
@@ -158,6 +160,22 @@ export default function App() {
               element={
                 <ProtectedRoute allow={['admin']}>
                   <AdminStats />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/salaries"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <Employees />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/gestion-paie"
+              element={
+                <ProtectedRoute allow={['admin']}>
+                  <PayrollManagement />
                 </ProtectedRoute>
               }
             />
