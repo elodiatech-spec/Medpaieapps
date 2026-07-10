@@ -67,11 +67,11 @@ export default function Overview() {
         <h1 className="text-xl font-semibold text-slate-900">
           Bonjour {profile.first_name} 👋
         </h1>
-        <p className="text-sm text-slate-500 capitalize">{formatMonthPeriod(period)}</p>
+        <p className="text-sm text-slate-600 capitalize">{formatMonthPeriod(period)}</p>
       </div>
 
       {loading ? (
-        <p className="text-sm text-slate-500">Chargement…</p>
+        <p className="text-sm text-slate-600">Chargement…</p>
       ) : isEmployer ? (
         <>
           <Card title="À valider ce mois-ci">
@@ -81,7 +81,7 @@ export default function Overview() {
                 className="flex flex-1 items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-brand-300"
               >
                 <div>
-                  <p className="text-sm text-slate-500">Variables de paie soumises</p>
+                  <p className="text-sm text-slate-600">Variables de paie soumises</p>
                   <p className="text-2xl font-semibold text-slate-900">{pendingVariables}</p>
                 </div>
                 <ArrowRight size={18} className="text-slate-400" />
@@ -91,7 +91,7 @@ export default function Overview() {
                 className="flex flex-1 items-center justify-between rounded-lg border border-slate-200 p-4 hover:border-brand-300"
               >
                 <div>
-                  <p className="text-sm text-slate-500">Demandes de congés</p>
+                  <p className="text-sm text-slate-600">Demandes de congés</p>
                   <p className="text-2xl font-semibold text-slate-900">{pendingLeaves.length}</p>
                 </div>
                 <ArrowRight size={18} className="text-slate-400" />
@@ -107,7 +107,7 @@ export default function Overview() {
               <StatusBadge status={myVariable.status} />
             </div>
           ) : (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               Vous n'avez pas encore saisi vos variables pour ce mois.
             </p>
           )}
@@ -123,21 +123,21 @@ export default function Overview() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Link
           to="/variables"
-          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
         >
           <ClipboardList className="text-brand-600" size={22} />
           <span className="text-sm font-medium text-slate-800">Variables de paie</span>
         </Link>
         <Link
           to="/conges"
-          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
         >
           <CalendarDays className="text-brand-600" size={22} />
           <span className="text-sm font-medium text-slate-800">Congés</span>
         </Link>
         <Link
           to="/documents"
-          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+          className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
         >
           <FileText className="text-brand-600" size={22} />
           <span className="text-sm font-medium text-slate-800">Documents</span>
@@ -145,7 +145,7 @@ export default function Overview() {
         {isEmployer ? (
           <Link
             to="/statistiques"
-            className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+            className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
           >
             <BarChart3 className="text-brand-600" size={22} />
             <span className="text-sm font-medium text-slate-800">Statistiques</span>
@@ -153,7 +153,7 @@ export default function Overview() {
         ) : (
           <Link
             to="/dossier"
-            className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+            className="flex flex-col items-center gap-2 rounded-xl bg-white p-5 text-center shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
           >
             <IdCard className="text-brand-600" size={22} />
             <span className="text-sm font-medium text-slate-800">Mon dossier</span>

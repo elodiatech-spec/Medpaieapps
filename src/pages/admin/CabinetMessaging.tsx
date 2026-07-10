@@ -25,7 +25,7 @@ export default function CabinetMessaging() {
       <div>
         <Link
           to={`/cabinets/${id}`}
-          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800"
         >
           <ArrowLeft size={16} /> Retour au cabinet
         </Link>

@@ -31,11 +31,25 @@ html {
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background-color: #f8f7f5;
+  background-color: #e4e9ed;
   color: #16232a;
   -webkit-font-smoothing: antialiased;
 }
 
 #root {
   min-height: 100svh;
+}
+
+/* Profondeur : deux ombres superposées (contact + diffuse) plutôt qu'un
+   simple shadow-sm plat, pour un rendu "soulevé" plus net sur fond clair. */
+@utility shadow-card {
+  box-shadow:
+    0 1px 2px 0 rgba(15, 23, 42, 0.07),
+    0 14px 28px -12px rgba(15, 23, 42, 0.20);
+}
+
+@utility shadow-deep {
+  box-shadow:
+    0 2px 4px 0 rgba(15, 23, 42, 0.12),
+    0 24px 48px -14px rgba(15, 23, 42, 0.32);
 }

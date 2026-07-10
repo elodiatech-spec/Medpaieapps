@@ -43,7 +43,20 @@ export default function TrendChart({
     .map((d, i) => `${i === 0 ? 'M' : 'L'} ${x(i)} ${y(d.value)}`)
     .join(' ')
 
-  const barWidth = data.length > 0 ? Math.min(28, (innerW / data.length) * 0.6) : 0
+  const barWidth = data.length > 0 ? Math.min(24, (innerW / data.length) * 0.6) : 0
+
+  // Barre arrondie uniquement en haut (data-end), carrée sur la ligne de base.
+  function roundedTopBarPath(barX: number, barY: number, w: number, h: number) {
+    const r = Math.min(4, w / 2, h)
+    if (h <= 0) return ''
+    return `M ${barX} ${barY + h}
+      L ${barX} ${barY + r}
+      Q ${barX} ${barY} ${barX + r} ${barY}
+      L ${barX + w - r} ${barY}
+      Q ${barX + w} ${barY} ${barX + w} ${barY + r}
+      L ${barX + w} ${barY + h}
+      Z`
+  }
 
   return (
     <div>
@@ -120,7 +133,7 @@ export default function TrendChart({
                   key={d.label}
                   cx={x(i)}
                   cy={y(d.value)}
-                  r={hover === i ? 5 : 3}
+                  r={hover === i ? 6 : 4}
                   fill="white"
                   stroke={color}
                   strokeWidth={2}
@@ -135,13 +148,9 @@ export default function TrendChart({
               const barY = y(d.value)
               const barH = innerH + padding.top - barY
               return (
-                <rect
+                <path
                   key={d.label}
-                  x={barX}
-                  y={barY}
-                  width={barWidth}
-                  height={Math.max(barH, 1)}
-                  rx={4}
+                  d={roundedTopBarPath(barX, barY, barWidth, Math.max(barH, 1))}
                   fill={color}
                   opacity={hover === i ? 1 : 0.85}
                 />

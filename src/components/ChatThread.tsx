@@ -67,7 +67,7 @@ export default function ChatThread({ cabinetId }: { cabinetId: string }) {
     })
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-3">
@@ -85,7 +85,7 @@ export default function ChatThread({ cabinetId }: { cabinetId: string }) {
               </span>
               <div
                 className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                  isMe ? 'bg-brand-600 text-white' : 'bg-white text-slate-800 ring-1 ring-black/5'
+                  isMe ? 'bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] text-white' : 'bg-white text-slate-800 ring-1 ring-black/5'
                 }`}
               >
                 {m.body}
@@ -106,7 +106,7 @@ export default function ChatThread({ cabinetId }: { cabinetId: string }) {
         />
         <button
           type="submit"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white hover:bg-brand-700"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] text-white hover:bg-brand-700"
         >
           <Send size={16} />
         </button>

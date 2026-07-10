@@ -33,14 +33,14 @@ function StatusToggle({ member, onChanged }: { member: Profile; onChanged: (m: P
           className={`rounded-lg px-3 py-1.5 text-xs font-medium disabled:opacity-60 ${
             member.active
               ? 'border border-red-200 text-red-600 hover:bg-red-50'
-              : 'bg-brand-600 text-white hover:bg-brand-700'
+              : 'bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] text-white hover:bg-brand-700'
           }`}
         >
           {member.active ? 'Désactiver ce compte' : 'Réactiver ce compte'}
         </button>
       </div>
       {member.active === false && (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-slate-600">
           Ce compte ne peut plus se connecter à MedPaie et n'est plus compté dans les effectifs
           facturés.
         </p>
@@ -58,7 +58,7 @@ const ROLE_LABELS: Record<string, string> = {
 function Row({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2 text-sm">
-      <span className="text-slate-500">{label}</span>
+      <span className="text-slate-600">{label}</span>
       <span className="text-right font-medium text-slate-900">
         {value === null || value === undefined || value === '' ? '—' : value}
       </span>
@@ -84,22 +84,22 @@ export default function MemberFile() {
     })()
   }, [memberId])
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
-  if (!member) return <p className="text-sm text-slate-500">Membre introuvable.</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
+  if (!member) return <p className="text-sm text-slate-600">Membre introuvable.</p>
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <Link
           to={id ? `/cabinets/${id}` : '/'}
-          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800"
         >
           <ArrowLeft size={16} /> Retour au cabinet
         </Link>
         <h1 className="text-xl font-semibold text-slate-900">
           {member.first_name} {member.last_name}
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600">
           {ROLE_LABELS[member.role]} · {member.email}
         </p>
       </div>

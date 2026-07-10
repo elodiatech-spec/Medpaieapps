@@ -21,7 +21,7 @@ export default function Invoices() {
     })()
   }, [])
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   const totalTTC = invoices.reduce((sum, i) => sum + i.amount_ttc, 0)
 
@@ -29,12 +29,12 @@ export default function Invoices() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Facturation</h1>
-        <p className="text-sm text-slate-500">{formatCurrency(totalTTC)} TTC au total</p>
+        <p className="text-sm text-slate-600">{formatCurrency(totalTTC)} TTC au total</p>
       </div>
 
       <Card>
         {invoices.length === 0 ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             Aucune facture générée pour le moment. La génération mensuelle automatisée (Edge
             Function) créera une ligne ici le 1er de chaque mois.
           </p>
@@ -44,7 +44,7 @@ export default function Invoices() {
               <div key={inv.id} className="flex items-center justify-between py-3 text-sm">
                 <div>
                   <p className="font-medium text-slate-900">{inv.cabinet?.name ?? inv.cabinet_id}</p>
-                  <p className="text-slate-500 capitalize">
+                  <p className="text-slate-600 capitalize">
                     {formatMonthPeriod(inv.period)} · {inv.headcount} salarié(s)
                   </p>
                 </div>

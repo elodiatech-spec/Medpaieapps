@@ -34,14 +34,14 @@ export default function ResetPassword() {
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-brand-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-deep border border-slate-200/80">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
           <Logo size={48} />
           <h1 className="text-xl font-semibold text-slate-900">Nouveau mot de passe</h1>
         </div>
 
         {loading ? (
-          <p className="text-center text-sm text-slate-500">Chargement…</p>
+          <p className="text-center text-sm text-slate-600">Chargement…</p>
         ) : !session ? (
           <p className="rounded-lg bg-amber-50 px-3 py-3 text-sm text-amber-700">
             Ce lien de réinitialisation n'est plus valide ou a expiré. Refais une demande
@@ -85,7 +85,7 @@ export default function ResetPassword() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-2 rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+              className="mt-2 rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
             >
               {submitting ? 'Enregistrement…' : 'Enregistrer le mot de passe'}
             </button>

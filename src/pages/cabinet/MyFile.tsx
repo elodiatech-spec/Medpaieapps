@@ -123,7 +123,7 @@ export default function MyFile() {
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Mon dossier</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600">
           Ces informations servent à établir ton contrat et ton bulletin de paie dans
           macompta.fr.
         </p>
@@ -324,7 +324,7 @@ export default function MyFile() {
       <button
         type="submit"
         disabled={saving}
-        className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+        className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
       >
         {saving ? 'Enregistrement…' : 'Enregistrer mon dossier'}
       </button>

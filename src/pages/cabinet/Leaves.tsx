@@ -185,7 +185,7 @@ function EmployeeLeaves() {
           <button
             type="submit"
             disabled={saving}
-            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             Envoyer la demande
           </button>
@@ -194,7 +194,7 @@ function EmployeeLeaves() {
 
       <Card title="Historique">
         {leaves.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucune demande de congé.</p>
+          <p className="text-sm text-slate-600">Aucune demande de congé.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {leaves.map((l) => (
@@ -202,7 +202,7 @@ function EmployeeLeaves() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-slate-900">{LEAVE_TYPE_LABELS[l.leave_type]}</p>
-                    <p className="text-slate-500">
+                    <p className="text-slate-600">
                       {formatDate(l.start_date)} → {formatDate(l.end_date)}
                     </p>
                   </div>
@@ -301,7 +301,7 @@ function EmployerLeaves() {
     await load()
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   const employeeMap = new Map(
     leaves.filter((l) => l.employee).map((l) => [l.employee_id, l.employee as Profile]),
@@ -317,7 +317,7 @@ function EmployerLeaves() {
 
       <Card>
         {leaves.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucune demande de congé.</p>
+          <p className="text-sm text-slate-600">Aucune demande de congé.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {leaves.map((l) => (
@@ -327,7 +327,7 @@ function EmployerLeaves() {
                     <p className="font-medium text-slate-900">
                       {l.employee?.first_name} {l.employee?.last_name} — {LEAVE_TYPE_LABELS[l.leave_type]}
                     </p>
-                    <p className="text-slate-500">
+                    <p className="text-slate-600">
                       {formatDate(l.start_date)} → {formatDate(l.end_date)}
                     </p>
                   </div>
@@ -336,7 +336,7 @@ function EmployerLeaves() {
                       <>
                         <button
                           onClick={() => decide(l.id, 'approved')}
-                          className="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+                          className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
                         >
                           Valider
                         </button>

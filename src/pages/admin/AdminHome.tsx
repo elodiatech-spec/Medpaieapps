@@ -88,13 +88,13 @@ export default function AdminHome() {
     await load()
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Pilotage multi-cabinets</h1>
-        <p className="text-sm text-slate-500">{cabinets.length} cabinet(s) actif(s)</p>
+        <p className="text-sm text-slate-600">{cabinets.length} cabinet(s) actif(s)</p>
       </div>
 
       <Card
@@ -108,7 +108,7 @@ export default function AdminHome() {
         }
       >
         {alerts.total === 0 && alerts.pendingLeavesCount === 0 && alerts.submittedVariablesCount === 0 ? (
-          <p className="text-sm text-slate-500">Rien à signaler pour le moment, tout est à jour.</p>
+          <p className="text-sm text-slate-600">Rien à signaler pour le moment, tout est à jour.</p>
         ) : (
           <div className="flex flex-col gap-4">
             {alerts.pendingJustifications.length > 0 && (
@@ -127,11 +127,11 @@ export default function AdminHome() {
                       <div>
                         <p className="font-medium text-slate-900">
                           {j.employee ? `${j.employee.first_name} ${j.employee.last_name}` : 'Salarié·e'}
-                          <span className="ml-1.5 font-normal text-slate-500">
+                          <span className="ml-1.5 font-normal text-slate-600">
                             · {LEAVE_TYPE_LABELS[j.leave_type]}
                           </span>
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-600">
                           {j.cabinetName ?? ''} ·{' '}
                           {j.justification_document_url ? 'à valider' : 'aucun document reçu'}
                         </p>
@@ -166,7 +166,7 @@ export default function AdminHome() {
 
       {alerts.pendingAccounts.length > 0 && (
         <Card title="Comptes en attente d'affectation">
-          <p className="mb-3 text-sm text-slate-500">
+          <p className="mb-3 text-sm text-slate-600">
             Ces personnes ont créé leur compte mais ne sont affectées à aucun cabinet. Copie
             l'e-mail et va sur la fiche du bon cabinet pour les affecter.
           </p>
@@ -177,7 +177,7 @@ export default function AdminHome() {
                   <p className="font-medium text-slate-900">
                     {p.first_name} {p.last_name}
                   </p>
-                  <p className="text-slate-500">{p.email}</p>
+                  <p className="text-slate-600">{p.email}</p>
                 </div>
                 <button
                   onClick={() => copyEmail(p.email)}
@@ -196,7 +196,7 @@ export default function AdminHome() {
           <Link
             key={cabinet.id}
             to={`/cabinets/${cabinet.id}`}
-            className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5 hover:ring-brand-200"
+            className="flex items-center justify-between rounded-xl bg-white p-4 shadow-card border border-slate-200/80 transition hover:shadow-deep hover:ring-2 hover:ring-brand-200"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
@@ -204,7 +204,7 @@ export default function AdminHome() {
               </div>
               <div>
                 <p className="font-medium text-slate-900">{cabinet.name}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-600">
                   {PLAN_LABELS[cabinet.plan]} · {headcounts[cabinet.id] ?? 0} salarié(s)
                   {cabinet.city ? ` · ${cabinet.city}` : ''}
                 </p>
@@ -215,7 +215,7 @@ export default function AdminHome() {
         ))}
         {cabinets.length === 0 && (
           <Card>
-            <p className="text-sm text-slate-500">Aucun cabinet actif pour le moment.</p>
+            <p className="text-sm text-slate-600">Aucun cabinet actif pour le moment.</p>
           </Card>
         )}
       </div>
@@ -290,7 +290,7 @@ export default function AdminHome() {
           <button
             type="submit"
             disabled={saving}
-            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             Créer le cabinet
           </button>

@@ -114,7 +114,7 @@ export default function Help() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Aide</h1>
-        <p className="text-sm text-slate-500">Questions fréquentes, classées par espace.</p>
+        <p className="text-sm text-slate-600">Questions fréquentes, classées par espace.</p>
       </div>
 
       <Card title={mySection.title}>

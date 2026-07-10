@@ -82,9 +82,9 @@ export default function Layout() {
   const mobileNavItems = navItems.filter((item) => item.mobile !== false)
 
   return (
-    <div className="flex min-h-svh flex-col bg-slate-50 md:flex-row">
+    <div className="flex min-h-svh flex-col bg-slate-200 md:flex-row">
       {/* Sidebar (desktop) */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white p-5 md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white p-5 shadow-[2px_0_16px_-8px_rgba(15,23,42,0.15)] md:flex">
         <div className="mb-8 flex items-center gap-2 px-1">
           <Logo size={36} />
           <span className="text-lg font-semibold text-slate-900">MedPaie</span>
@@ -115,24 +115,24 @@ export default function Layout() {
           <p className="truncate text-sm font-medium text-slate-800">
             {profile.first_name} {profile.last_name}
           </p>
-          <p className="truncate text-xs text-slate-500">{ROLE_LABELS[profile.role]}</p>
+          <p className="truncate text-xs text-slate-600">{ROLE_LABELS[profile.role]}</p>
           <Link
             to="/aide"
-            className="mt-3 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+            className="mt-3 flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
           >
             <HelpCircle size={16} />
             Aide
           </Link>
           <Link
             to="/mon-compte"
-            className="mt-2 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+            className="mt-2 flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
           >
             <Settings size={16} />
             Mon compte
           </Link>
           <button
             onClick={() => signOut()}
-            className="mt-2 flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800"
+            className="mt-2 flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
           >
             <LogOut size={16} />
             Déconnexion
@@ -140,7 +140,7 @@ export default function Layout() {
           <PoweredByElodiatech className="mt-4" />
           <Link
             to="/mentions-legales"
-            className="mt-2 block text-center text-[11px] text-slate-300 hover:text-slate-500"
+            className="mt-2 block text-center text-[11px] text-slate-300 hover:text-slate-600"
           >
             Mentions légales
           </Link>
@@ -148,19 +148,19 @@ export default function Layout() {
       </aside>
 
       {/* Header (mobile) */}
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-[0_2px_12px_-6px_rgba(15,23,42,0.2)] md:hidden">
         <div className="flex items-center gap-2">
           <Logo size={32} />
           <span className="font-semibold text-slate-900">MedPaie</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link to="/aide" className="text-slate-500">
+          <Link to="/aide" className="text-slate-600">
             <HelpCircle size={20} />
           </Link>
-          <Link to="/mon-compte" className="text-slate-500">
+          <Link to="/mon-compte" className="text-slate-600">
             <Settings size={20} />
           </Link>
-          <button onClick={() => signOut()} className="text-slate-500">
+          <button onClick={() => signOut()} className="text-slate-600">
             <LogOut size={20} />
           </button>
         </div>
@@ -173,7 +173,7 @@ export default function Layout() {
       </main>
 
       {/* Bottom nav (mobile) — rubriques principales uniquement */}
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-slate-200 bg-white md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-10 flex border-t border-slate-200 bg-white shadow-[0_-2px_16px_-6px_rgba(15,23,42,0.2)] md:hidden">
         {mobileNavItems.map((item) => (
           <NavLink
             key={item.to}
@@ -181,7 +181,7 @@ export default function Layout() {
             end={item.end}
             className={({ isActive }) =>
               `relative flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-medium ${
-                isActive ? 'text-brand-700' : 'text-slate-500'
+                isActive ? 'text-brand-700' : 'text-slate-600'
               }`
             }
           >

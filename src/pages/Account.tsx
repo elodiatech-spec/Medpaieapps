@@ -46,7 +46,7 @@ export default function Account() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Mon compte</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600">
           {profile.first_name} {profile.last_name} · {ROLE_LABELS[profile.role]}
         </p>
       </div>
@@ -54,7 +54,7 @@ export default function Account() {
       <Card title="Informations">
         <div className="flex flex-col divide-y divide-slate-100 text-sm">
           <div className="flex items-center justify-between py-2">
-            <span className="text-slate-500">E-mail</span>
+            <span className="text-slate-600">E-mail</span>
             <span className="font-medium text-slate-900">{profile.email}</span>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function Account() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             {submitting ? 'Enregistrement…' : 'Enregistrer'}
           </button>

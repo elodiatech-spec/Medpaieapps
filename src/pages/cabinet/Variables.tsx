@@ -142,7 +142,7 @@ function EmployeeVariables() {
     if (!error) await load()
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
@@ -234,7 +234,7 @@ function EmployeeVariables() {
           </div>
 
           {locked ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               Votre déclaration a été soumise et n'est plus modifiable. Contactez votre médecin
               ou votre gestionnaire Elodiatech pour toute correction.
             </p>
@@ -251,7 +251,7 @@ function EmployeeVariables() {
                 type="button"
                 disabled={saving}
                 onClick={(e) => handleSave(e, true)}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+                className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
               >
                 Soumettre au médecin
               </button>
@@ -332,7 +332,7 @@ function EmployerVariables() {
     await load()
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
@@ -359,7 +359,7 @@ function EmployerVariables() {
 
       <Card>
         {rows.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucune variable saisie pour ce mois.</p>
+          <p className="text-sm text-slate-600">Aucune variable saisie pour ce mois.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {rows.map((row) => (
@@ -379,7 +379,7 @@ function EmployerVariables() {
                 {row.status === 'submitted' && (
                   <button
                     onClick={() => validate(row.id)}
-                    className="mt-1 w-fit rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+                    className="mt-1 w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
                   >
                     Valider d'un clic
                   </button>

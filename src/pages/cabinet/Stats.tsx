@@ -88,13 +88,13 @@ export default function Stats() {
   }, [profile])
 
   if (!profile) return null
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Statistiques</h1>
-        <p className="text-sm text-slate-500">Vue sur les 12 derniers mois</p>
+        <p className="text-sm text-slate-600">Vue sur les 12 derniers mois</p>
       </div>
 
       <Card>

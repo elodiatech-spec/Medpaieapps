@@ -107,19 +107,19 @@ export default function Portals() {
     await load()
   }
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <Link
           to={`/cabinets/${id}`}
-          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800"
         >
           <ArrowLeft size={16} /> Retour au cabinet
         </Link>
         <h1 className="text-xl font-semibold text-slate-900">Portails & coffre-fort</h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600">
           Les mots de passe sont chiffrés en base (Supabase Vault) et ne sont déchiffrés qu'à
           la demande, pour l'administrateur uniquement.
         </p>
@@ -127,7 +127,7 @@ export default function Portals() {
 
       <Card title="Accès enregistrés">
         {credentials.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucun accès enregistré pour ce cabinet.</p>
+          <p className="text-sm text-slate-600">Aucun accès enregistré pour ce cabinet.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {credentials.map((c) => (
@@ -154,7 +154,7 @@ export default function Portals() {
                   </div>
                 </div>
                 {c.username && <p className="text-sm text-slate-600">Identifiant : {c.username}</p>}
-                {c.notes && <p className="text-sm text-slate-500">{c.notes}</p>}
+                {c.notes && <p className="text-sm text-slate-600">{c.notes}</p>}
                 <button
                   onClick={() => reveal(c.id)}
                   className="flex w-fit items-center gap-1.5 text-xs font-medium text-brand-700"
@@ -232,7 +232,7 @@ export default function Portals() {
           <button
             type="submit"
             disabled={saving}
-            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             Enregistrer l'accès
           </button>

@@ -37,7 +37,7 @@ export default function Documents() {
   }, [profile])
 
   if (!profile) return null
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,7 +45,7 @@ export default function Documents() {
 
       <Card>
         {documents.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucun document disponible pour le moment.</p>
+          <p className="text-sm text-slate-600">Aucun document disponible pour le moment.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {documents.map((doc) => {
@@ -58,7 +58,7 @@ export default function Documents() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-slate-900">{doc.document_name}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-600">
                         {TYPE_LABELS[doc.document_type] ?? doc.document_type} · {formatDate(doc.created_at.slice(0, 10))}
                       </p>
                     </div>

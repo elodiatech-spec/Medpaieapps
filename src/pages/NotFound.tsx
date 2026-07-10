@@ -7,13 +7,13 @@ export default function NotFound() {
       <Logo size={48} />
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Page introuvable</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-600">
           Cette adresse ne correspond à aucune page de MedPaie.
         </p>
       </div>
       <Link
         to="/"
-        className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+        className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
       >
         Retour à l'accueil
       </Link>

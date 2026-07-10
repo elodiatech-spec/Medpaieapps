@@ -215,7 +215,7 @@ export default function CabinetDetail() {
     await load()
   }
 
-  if (loading || !cabinet) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading || !cabinet) return <p className="text-sm text-slate-600">Chargement…</p>
 
   const onboardingSteps: OnboardingStep[] = [
     { label: 'Affecter au moins un membre (médecin ou assistante)', done: members.length > 0 },
@@ -238,13 +238,13 @@ export default function CabinetDetail() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <Link to="/" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800">
+        <Link to="/" className="mb-2 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800">
           <ArrowLeft size={16} /> Retour
         </Link>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{cabinet.name}</h1>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-slate-600">
               {PLAN_LABELS[cabinet.plan]} · {activeEmployeeCount} salarié(s) actif(s)
             </p>
           </div>
@@ -279,7 +279,7 @@ export default function CabinetDetail() {
                 <div className="flex items-center gap-2">
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
-                      step.done ? 'bg-brand-600 text-white' : 'border border-slate-300 text-transparent'
+                      step.done ? 'bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] text-white' : 'border border-slate-300 text-transparent'
                     }`}
                   >
                     <Check size={12} />
@@ -301,7 +301,7 @@ export default function CabinetDetail() {
 
       <Card title="Membres du cabinet">
         {members.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucun membre affecté à ce cabinet pour le moment.</p>
+          <p className="text-sm text-slate-600">Aucun membre affecté à ce cabinet pour le moment.</p>
         ) : (
           <div className="mb-4 flex flex-col divide-y divide-slate-100">
             {members.map((m) => (
@@ -319,16 +319,16 @@ export default function CabinetDetail() {
                       </span>
                     )}
                   </p>
-                  <p className="text-slate-500">{m.email}</p>
+                  <p className="text-slate-600">{m.email}</p>
                 </div>
-                <span className="text-xs font-medium text-slate-500">{ROLE_LABELS[m.role]}</span>
+                <span className="text-xs font-medium text-slate-600">{ROLE_LABELS[m.role]}</span>
               </Link>
             ))}
           </div>
         )}
 
         <form onSubmit={assignMember} className="flex flex-col gap-4 border-t border-slate-100 pt-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             Affecter un compte déjà créé dans Supabase (Authentication &gt; Users) à ce cabinet.
           </p>
           <div className="flex flex-col gap-1.5">
@@ -379,7 +379,7 @@ export default function CabinetDetail() {
           <button
             type="submit"
             disabled={memberSaving}
-            className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="flex w-fit items-center gap-1.5 rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             <UserPlus size={16} /> Affecter au cabinet
           </button>
@@ -406,7 +406,7 @@ export default function CabinetDetail() {
         }
       >
         {variables.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucune variable saisie pour ce mois.</p>
+          <p className="text-sm text-slate-600">Aucune variable saisie pour ce mois.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {variables.map((v) => {
@@ -438,7 +438,7 @@ export default function CabinetDetail() {
 
       <Card title="Congés récents">
         {leaves.length === 0 ? (
-          <p className="text-sm text-slate-500">Aucune demande récente.</p>
+          <p className="text-sm text-slate-600">Aucune demande récente.</p>
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {leaves.map((l) => {
@@ -468,7 +468,7 @@ export default function CabinetDetail() {
                           ) : (
                             <button
                               onClick={() => validateJustification(l.id)}
-                              className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-brand-700"
+                              className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-2.5 py-1 text-xs font-medium text-white hover:bg-brand-700"
                             >
                               Valider le justificatif
                             </button>
@@ -542,7 +542,7 @@ export default function CabinetDetail() {
           <button
             type="submit"
             disabled={saving}
-            className="w-fit rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             Ajouter le document
           </button>

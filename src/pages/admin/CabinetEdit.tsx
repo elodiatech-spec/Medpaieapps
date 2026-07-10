@@ -115,14 +115,14 @@ export default function CabinetEdit() {
     }
   }
 
-  if (loading || !cabinet) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading || !cabinet) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <Link
           to={`/cabinets/${id}`}
-          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-slate-600 hover:text-slate-800"
         >
           <ArrowLeft size={16} /> Retour au cabinet
         </Link>
@@ -209,7 +209,7 @@ export default function CabinetEdit() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
+            className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
           >
             {saving ? 'Enregistrement…' : 'Enregistrer'}
           </button>

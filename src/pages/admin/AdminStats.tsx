@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Building2, TrendingUp, Users } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { formatCurrency } from '../../lib/format'
 import Card from '../../components/Card'
@@ -63,7 +64,7 @@ export default function AdminStats() {
     })()
   }, [])
 
-  if (loading) return <p className="text-sm text-slate-500">Chargement…</p>
+  if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   const mrr = cabinets.reduce((sum, c) => {
     const price = PLAN_PRICES[c.plan]
@@ -79,22 +80,37 @@ export default function AdminStats() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Chiffre d'affaires</h1>
-        <p className="text-sm text-slate-500">Vue d'ensemble sur tous les cabinets actifs</p>
+        <p className="text-sm text-slate-600">Vue d'ensemble sur tous les cabinets actifs</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card>
-          <p className="text-xs font-medium text-slate-500">MRR estimé</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{formatCurrency(mrr)}</p>
-          <p className="mt-0.5 text-xs text-slate-400">Par mois, tarifs en vigueur</p>
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+              <TrendingUp size={18} />
+            </span>
+            <p className="text-xs font-medium text-slate-600">MRR estimé</p>
+          </div>
+          <p className="mt-3 text-2xl font-semibold text-slate-900">{formatCurrency(mrr)}</p>
+          <p className="mt-0.5 text-xs text-slate-500">Par mois, tarifs en vigueur</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-slate-500">Cabinets actifs</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{cabinets.length}</p>
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+              <Building2 size={18} />
+            </span>
+            <p className="text-xs font-medium text-slate-600">Cabinets actifs</p>
+          </div>
+          <p className="mt-3 text-2xl font-semibold text-slate-900">{cabinets.length}</p>
         </Card>
         <Card>
-          <p className="text-xs font-medium text-slate-500">Salariés suivis</p>
-          <p className="mt-1 text-2xl font-semibold text-slate-900">{headcount}</p>
+          <div className="flex items-center gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+              <Users size={18} />
+            </span>
+            <p className="text-xs font-medium text-slate-600">Salariés suivis</p>
+          </div>
+          <p className="mt-3 text-2xl font-semibold text-slate-900">{headcount}</p>
         </Card>
       </div>
 
@@ -116,7 +132,7 @@ export default function AdminStats() {
             return (
               <div key={value} className="flex items-center justify-between py-2.5 text-sm">
                 <span className="font-medium text-slate-700">{label}</span>
-                <span className="text-slate-500">
+                <span className="text-slate-600">
                   {count} cabinet(s) {cabinets.length > 0 ? `· ${pct}%` : ''}
                 </span>
               </div>

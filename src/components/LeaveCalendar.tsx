@@ -52,7 +52,7 @@ export default function LeaveCalendar({
         <button
           type="button"
           onClick={() => setMonth((m) => subMonths(m, 1))}
-          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+          className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100"
         >
           <ChevronLeft size={18} />
         </button>
@@ -62,7 +62,7 @@ export default function LeaveCalendar({
         <button
           type="button"
           onClick={() => setMonth((m) => addMonths(m, 1))}
-          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"
+          className="rounded-lg p-1.5 text-slate-600 hover:bg-slate-100"
         >
           <ChevronRight size={18} />
         </button>
@@ -101,7 +101,7 @@ export default function LeaveCalendar({
         })}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-4 text-xs text-slate-500">
+      <div className="mt-4 flex flex-wrap gap-4 text-xs text-slate-600">
         <span className="flex items-center gap-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-brand-500" /> Approuvé
         </span>

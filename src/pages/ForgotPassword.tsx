@@ -26,11 +26,11 @@ export default function ForgotPassword() {
 
   return (
     <div className="flex min-h-svh items-center justify-center bg-brand-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
+      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-deep border border-slate-200/80">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
           <Logo size={48} />
           <h1 className="text-xl font-semibold text-slate-900">Mot de passe oublié</h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-600">
             Indique ton e-mail, on t'envoie un lien pour en choisir un nouveau.
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={submitting}
-              className="mt-2 rounded-lg bg-brand-600 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
+              className="mt-2 rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] py-2.5 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60"
             >
               {submitting ? 'Envoi…' : 'Envoyer le lien'}
             </button>
@@ -72,7 +72,7 @@ export default function ForgotPassword() {
 
         <Link
           to="/login"
-          className="mt-6 flex items-center justify-center gap-1 text-sm text-slate-500 hover:text-slate-800"
+          className="mt-6 flex items-center justify-center gap-1 text-sm text-slate-600 hover:text-slate-800"
         >
           <ArrowLeft size={16} /> Retour à la connexion
         </Link>

@@ -69,7 +69,7 @@ export default function Offers() {
         </div>
         <Link
           to="/login"
-          className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+          className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
         >
           Se connecter
         </Link>
@@ -115,10 +115,10 @@ export default function Offers() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`flex flex-col rounded-2xl p-6 shadow-sm ring-1 ${
+              className={`flex flex-col rounded-2xl border p-6 shadow-card transition hover:shadow-deep ${
                 plan.highlight
-                  ? 'bg-gradient-to-br from-brand-600 to-brand-800 text-white ring-brand-700'
-                  : 'bg-white text-slate-900 ring-black/5'
+                  ? 'border-brand-700 bg-gradient-to-br from-brand-600 to-brand-800 text-white'
+                  : 'border-slate-200/80 bg-white text-slate-900'
               }`}
             >
               <p className={`text-xs font-medium ${plan.highlight ? 'text-brand-100' : 'text-brand-600'}`}>
@@ -128,12 +128,12 @@ export default function Offers() {
               <div className="mt-4">
                 <p className="text-2xl font-semibold">
                   {plan.priceEngaged}
-                  <span className={`text-sm font-normal ${plan.highlight ? 'text-brand-100' : 'text-slate-500'}`}>
+                  <span className={`text-sm font-normal ${plan.highlight ? 'text-brand-100' : 'text-slate-600'}`}>
                     {' '}
                     TTC/mois
                   </span>
                 </p>
-                <p className={`text-xs ${plan.highlight ? 'text-brand-100' : 'text-slate-500'}`}>
+                <p className={`text-xs ${plan.highlight ? 'text-brand-100' : 'text-slate-600'}`}>
                   avec engagement 12 mois · {plan.priceFree} TTC/mois sans engagement
                 </p>
               </div>
