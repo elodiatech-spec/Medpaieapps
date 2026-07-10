@@ -7,13 +7,13 @@ import {
   Building2,
   Receipt,
   LogOut,
-  Stethoscope,
   IdCard,
   MessageCircle,
   BarChart3,
 } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import type { Role } from '../lib/database.types'
+import Logo from './Logo'
 
 interface NavItem {
   to: string
@@ -67,9 +67,7 @@ export default function Layout() {
       {/* Sidebar (desktop) */}
       <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white p-5 md:flex">
         <div className="mb-8 flex items-center gap-2 px-1">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <Stethoscope size={18} />
-          </div>
+          <Logo size={36} />
           <span className="text-lg font-semibold text-slate-900">MedPaie</span>
         </div>
 
@@ -111,9 +109,7 @@ export default function Layout() {
       {/* Header (mobile) */}
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 md:hidden">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <Stethoscope size={16} />
-          </div>
+          <Logo size={32} />
           <span className="font-semibold text-slate-900">MedPaie</span>
         </div>
         <button onClick={() => signOut()} className="text-slate-500">

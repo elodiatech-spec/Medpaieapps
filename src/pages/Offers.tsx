@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Stethoscope, Check, Sparkles } from 'lucide-react'
+import { Check, Sparkles } from 'lucide-react'
+import Logo from '../components/Logo'
 
 interface PlanCard {
   name: string
@@ -62,9 +63,7 @@ export default function Offers() {
     <div className="min-h-svh bg-white">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <Stethoscope size={18} />
-          </div>
+          <Logo size={36} />
           <span className="text-lg font-semibold text-slate-900">MedPaie</span>
         </div>
         <Link
@@ -75,18 +74,27 @@ export default function Offers() {
         </Link>
       </header>
 
-      <section className="mx-auto max-w-3xl px-6 py-12 text-center">
-        <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
-          <Sparkles size={14} /> Guadeloupe &amp; Martinique
-        </p>
-        <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
-          La paie de votre cabinet médical, sans y penser
-        </h1>
-        <p className="mt-4 text-base text-slate-600">
-          MedPaie simplifie à l'extrême la collecte des variables de paie et la gestion
-          administrative de votre assistante médicale, en lien direct avec macompta.fr et un
-          gestionnaire de paie dédié chez Elodiatech.
-        </p>
+      <section className="relative overflow-hidden">
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background:
+              'radial-gradient(circle at 15% 20%, rgba(6,182,212,0.10), transparent 55%), radial-gradient(circle at 85% 0%, rgba(244,63,94,0.08), transparent 50%)',
+          }}
+        />
+        <div className="mx-auto max-w-3xl px-6 py-14 text-center">
+          <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent-100 px-3 py-1 text-xs font-medium text-accent-700">
+            <Sparkles size={14} /> Guadeloupe &amp; Martinique
+          </p>
+          <h1 className="text-3xl font-semibold text-slate-900 sm:text-4xl">
+            La paie de votre cabinet médical, sans y penser
+          </h1>
+          <p className="mt-4 text-base text-slate-600">
+            MedPaie simplifie à l'extrême la collecte des variables de paie et la gestion
+            administrative de votre assistante médicale, en lien direct avec macompta.fr et un
+            gestionnaire de paie dédié chez Elodiatech.
+          </p>
+        </div>
       </section>
 
       <section className="mx-auto max-w-3xl px-6 pb-12">
@@ -107,7 +115,9 @@ export default function Offers() {
             <div
               key={plan.name}
               className={`flex flex-col rounded-2xl p-6 shadow-sm ring-1 ${
-                plan.highlight ? 'bg-brand-600 text-white ring-brand-600' : 'bg-white text-slate-900 ring-black/5'
+                plan.highlight
+                  ? 'bg-gradient-to-br from-brand-600 to-brand-800 text-white ring-brand-700'
+                  : 'bg-white text-slate-900 ring-black/5'
               }`}
             >
               <p className={`text-xs font-medium ${plan.highlight ? 'text-brand-100' : 'text-brand-600'}`}>
@@ -134,7 +144,7 @@ export default function Offers() {
                 className={`mt-6 rounded-lg py-2 text-center text-sm font-medium ${
                   plan.highlight
                     ? 'bg-white text-brand-700 hover:bg-brand-50'
-                    : 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'bg-accent-500 text-white hover:bg-accent-600'
                 }`}
               >
                 En savoir plus

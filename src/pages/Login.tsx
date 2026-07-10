@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, Link } from 'react-router-dom'
-import { Stethoscope } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
+import Logo from '../components/Logo'
 import { isSupabaseConfigured } from '../lib/supabase'
 
 export default function Login() {
@@ -26,9 +26,7 @@ export default function Login() {
     <div className="flex min-h-svh items-center justify-center bg-brand-50 px-4">
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm ring-1 ring-black/5">
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white">
-            <Stethoscope size={24} />
-          </div>
+          <Logo size={48} />
           <h1 className="text-xl font-semibold text-slate-900">MedPaie</h1>
           <p className="text-sm text-slate-500">Suivi de paie pour cabinets médicaux</p>
         </div>
