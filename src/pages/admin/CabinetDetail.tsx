@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Download, UserPlus, ExternalLink } from 'lucide-react'
+import { ArrowLeft, Check, Download, FileSpreadsheet, UserPlus, ExternalLink } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { currentMonthPeriod, formatMonthPeriod, formatCurrency } from '../../lib/format'
 import Card from '../../components/Card'
@@ -17,6 +17,13 @@ import {
   type DocumentType,
   type Role,
 } from '../../lib/database.types'
+
+interface OnboardingStep {
+  label: string
+  done: boolean
+  to?: string
+  linkLabel?: string
+}
 
 async function openJustification(path: string) {
   const { data } = await supabase.storage.from('justificatifs').createSignedUrl(path, 60)
@@ -37,6 +44,8 @@ export default function CabinetDetail() {
   const [members, setMembers] = useState<Profile[]>([])
   const [variables, setVariables] = useState<PayrollVariable[]>([])
   const [leaves, setLeaves] = useState<LeaveRequest[]>([])
+  const [portalCount, setPortalCount] = useState(0)
+  const [documentCount, setDocumentCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const employees = members.filter((m) => m.role === 'employee')
@@ -57,16 +66,21 @@ export default function CabinetDetail() {
 
   async function load() {
     if (!id) return
-    const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }] = await Promise.all([
-      supabase.from('cabinets').select('*').eq('id', id).single(),
-      supabase.from('profiles').select('*').eq('cabinet_id', id),
-      supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
-      supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(50),
-    ])
+    const [{ data: cab }, { data: mem }, { data: vars }, { data: lvs }, { count: portals }, { count: docs }] =
+      await Promise.all([
+        supabase.from('cabinets').select('*').eq('id', id).single(),
+        supabase.from('profiles').select('*').eq('cabinet_id', id),
+        supabase.from('payroll_variables').select('*').eq('cabinet_id', id).eq('month_period', period),
+        supabase.from('leave_requests').select('*').eq('cabinet_id', id).order('start_date', { ascending: false }).limit(50),
+        supabase.from('portal_credentials').select('*', { count: 'exact', head: true }).eq('cabinet_id', id),
+        supabase.from('documents').select('*', { count: 'exact', head: true }).eq('cabinet_id', id),
+      ])
     setCabinet(cab as Cabinet)
     setMembers((mem as Profile[]) ?? [])
     setVariables((vars as PayrollVariable[]) ?? [])
     setLeaves((lvs as LeaveRequest[]) ?? [])
+    setPortalCount(portals ?? 0)
+    setDocumentCount(docs ?? 0)
     setLoading(false)
   }
 
@@ -134,6 +148,49 @@ export default function CabinetDetail() {
     URL.revokeObjectURL(url)
   }
 
+  async function exportExcel() {
+    const { default: ExcelJS } = await import('exceljs')
+    const workbook = new ExcelJS.Workbook()
+    const sheet = workbook.addWorksheet('Variables')
+    sheet.columns = [
+      { header: 'Nom', key: 'nom', width: 18 },
+      { header: 'Prénom', key: 'prenom', width: 18 },
+      { header: 'NIR', key: 'nir', width: 18 },
+      { header: 'Mois', key: 'mois', width: 12 },
+      { header: 'Heures sup. 25%', key: 'hs25', width: 16 },
+      { header: 'Heures sup. 50%', key: 'hs50', width: 16 },
+      { header: 'Indemnités km', key: 'km', width: 16 },
+      { header: 'Primes', key: 'primes', width: 12 },
+    ]
+    sheet.getRow(1).font = { bold: true }
+
+    const byEmployee = new Map(employees.map((e) => [e.id, e]))
+    for (const v of variables) {
+      const emp = byEmployee.get(v.employee_id)
+      sheet.addRow({
+        nom: emp?.last_name ?? '',
+        prenom: emp?.first_name ?? '',
+        nir: emp?.nir ?? '',
+        mois: v.month_period,
+        hs25: v.overtime_hours_25,
+        hs50: v.overtime_hours_50,
+        km: v.kilometric_expenses,
+        primes: v.bonus_amount,
+      })
+    }
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `variables_${id}_${period}.xlsx`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   async function validateJustification(leaveId: string) {
     await supabase.from('leave_requests').update({ justification_validated: true }).eq('id', leaveId)
     await load()
@@ -159,6 +216,24 @@ export default function CabinetDetail() {
   }
 
   if (loading || !cabinet) return <p className="text-sm text-slate-500">Chargement…</p>
+
+  const onboardingSteps: OnboardingStep[] = [
+    { label: 'Affecter au moins un membre (médecin ou assistante)', done: members.length > 0 },
+    {
+      label: 'Compléter la fiche établissement (SIRET, adresse…)',
+      done: Boolean(cabinet.siret),
+      to: `/cabinets/${id}/modifier`,
+      linkLabel: 'Compléter',
+    },
+    {
+      label: 'Configurer au moins un portail (URSSAF, Net-Entreprises…)',
+      done: portalCount > 0,
+      to: `/cabinets/${id}/portails`,
+      linkLabel: 'Configurer',
+    },
+    { label: 'Déposer un premier document (fiche de paie…)', done: documentCount > 0 },
+  ]
+  const onboardingComplete = onboardingSteps.every((s) => s.done)
 
   return (
     <div className="flex flex-col gap-6">
@@ -195,6 +270,34 @@ export default function CabinetDetail() {
           </div>
         </div>
       </div>
+
+      {!onboardingComplete && (
+        <Card title="Premiers pas pour ce cabinet">
+          <div className="flex flex-col divide-y divide-slate-100">
+            {onboardingSteps.map((step) => (
+              <div key={step.label} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${
+                      step.done ? 'bg-brand-600 text-white' : 'border border-slate-300 text-transparent'
+                    }`}
+                  >
+                    <Check size={12} />
+                  </span>
+                  <span className={step.done ? 'text-slate-400 line-through' : 'text-slate-700'}>
+                    {step.label}
+                  </span>
+                </div>
+                {!step.done && step.to && (
+                  <Link to={step.to} className="shrink-0 text-xs font-medium text-brand-700 hover:text-brand-800">
+                    {step.linkLabel}
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <Card title="Membres du cabinet">
         {members.length === 0 ? (
@@ -286,12 +389,20 @@ export default function CabinetDetail() {
       <Card
         title={`Variables — ${formatMonthPeriod(period)}`}
         action={
-          <button
-            onClick={exportCsv}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
-          >
-            <Download size={14} /> Export CSV macompta.fr
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={exportCsv}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <Download size={14} /> CSV macompta.fr
+            </button>
+            <button
+              onClick={exportExcel}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+            >
+              <FileSpreadsheet size={14} /> Excel
+            </button>
+          </div>
         }
       >
         {variables.length === 0 ? (
