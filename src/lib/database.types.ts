@@ -117,6 +117,16 @@ export interface Profile {
   created_at: string
 }
 
+export interface TimeEntry {
+  id: string
+  employee_id: string
+  cabinet_id: string
+  week_start_date: string
+  hours_worked: number
+  created_at: string
+  updated_at: string
+}
+
 export interface PayrollVariable {
   id: string
   employee_id: string
