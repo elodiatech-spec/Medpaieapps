@@ -332,6 +332,11 @@ function EmployerVariables() {
     await load()
   }
 
+  async function sendBackToDraft(id: string) {
+    await supabase.from('payroll_variables').update({ status: 'draft' }).eq('id', id)
+    await load()
+  }
+
   if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   return (
@@ -376,13 +381,23 @@ function EmployerVariables() {
                   <span>Km : {formatCurrency(row.kilometric_expenses)}</span>
                   <span>Primes : {formatCurrency(row.bonus_amount)}</span>
                 </div>
-                {row.status === 'submitted' && (
-                  <button
-                    onClick={() => validate(row.id)}
-                    className="mt-1 w-fit rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
-                  >
-                    Valider d'un clic
-                  </button>
+                {row.status !== 'draft' && (
+                  <div className="mt-1 flex w-fit gap-2">
+                    {row.status === 'submitted' && (
+                      <button
+                        onClick={() => validate(row.id)}
+                        className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-700"
+                      >
+                        Valider d'un clic
+                      </button>
+                    )}
+                    <button
+                      onClick={() => sendBackToDraft(row.id)}
+                      className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50"
+                    >
+                      Renvoyer pour correction
+                    </button>
+                  </div>
                 )}
               </div>
             ))}

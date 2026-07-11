@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { formatDate } from '../../lib/format'
 import Card from '../../components/Card'
-import type { AppDocument } from '../../lib/database.types'
+import type { AppDocument, Profile } from '../../lib/database.types'
 
 const TYPE_LABELS: Record<string, string> = {
   fiche_de_paie: 'Fiche de paie',
@@ -15,6 +15,7 @@ const TYPE_LABELS: Record<string, string> = {
 export default function Documents() {
   const { profile } = useAuth()
   const [documents, setDocuments] = useState<AppDocument[]>([])
+  const [members, setMembers] = useState<Profile[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -30,11 +31,19 @@ export default function Documents() {
         query = query.or(`employee_id.eq.${profile.id},employee_id.is.null`)
       }
 
-      const { data } = await query
+      const [{ data }, { data: mem }] = await Promise.all([
+        query,
+        profile.role === 'employer'
+          ? supabase.from('profiles').select('*').eq('cabinet_id', profile.cabinet_id)
+          : Promise.resolve({ data: null }),
+      ])
       setDocuments((data as AppDocument[]) ?? [])
+      setMembers((mem as Profile[]) ?? [])
       setLoading(false)
     })()
   }, [profile])
+
+  const memberById = new Map(members.map((m) => [m.id, m]))
 
   if (!profile) return null
   if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
@@ -50,6 +59,14 @@ export default function Documents() {
           <div className="flex flex-col divide-y divide-slate-100">
             {documents.map((doc) => {
               const link = doc.macompta_paie_url ?? undefined
+              const recipient =
+                profile.role === 'employer' && doc.employee_id
+                  ? doc.employee_id === profile.id
+                    ? 'Vous'
+                    : memberById.get(doc.employee_id)
+                      ? `${memberById.get(doc.employee_id)!.first_name} ${memberById.get(doc.employee_id)!.last_name}`
+                      : null
+                  : null
               return (
                 <div key={doc.id} className="flex items-center justify-between gap-3 py-3">
                   <div className="flex items-center gap-3">
@@ -60,6 +77,7 @@ export default function Documents() {
                       <p className="text-sm font-medium text-slate-900">{doc.document_name}</p>
                       <p className="text-xs text-slate-600">
                         {TYPE_LABELS[doc.document_type] ?? doc.document_type} · {formatDate(doc.created_at.slice(0, 10))}
+                        {recipient ? ` · ${recipient}` : ''}
                       </p>
                     </div>
                   </div>
