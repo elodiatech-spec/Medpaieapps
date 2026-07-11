@@ -15,6 +15,8 @@ import Variables from './pages/cabinet/Variables'
 import Leaves from './pages/cabinet/Leaves'
 import Documents from './pages/cabinet/Documents'
 import MyFile from './pages/cabinet/MyFile'
+import Team from './pages/cabinet/Team'
+import TeamMemberFile from './pages/cabinet/TeamMemberFile'
 import Messaging from './pages/cabinet/Messaging'
 import Stats from './pages/cabinet/Stats'
 import AdminHome from './pages/admin/AdminHome'
@@ -87,6 +89,22 @@ export default function App() {
               element={
                 <ProtectedRoute allow={['employee']}>
                   <MyFile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipe"
+              element={
+                <ProtectedRoute allow={['employer']}>
+                  <Team />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/equipe/:employeeId"
+              element={
+                <ProtectedRoute allow={['employer']}>
+                  <TeamMemberFile />
                 </ProtectedRoute>
               }
             />

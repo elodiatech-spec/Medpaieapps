@@ -60,6 +60,7 @@ const NAV_BY_ROLE: Record<Role, NavItem[]> = {
     { to: '/conges', label: 'Congés', icon: CalendarDays },
     { to: '/messagerie', label: 'Messagerie', icon: MessageCircle },
     { to: '/documents', label: 'Documents', icon: FileText, mobile: false },
+    { to: '/equipe', label: 'Mon équipe', icon: Users, mobile: false },
     { to: '/statistiques', label: 'Statistiques', icon: BarChart3, mobile: false },
   ],
   employee: [
