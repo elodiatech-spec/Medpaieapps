@@ -103,6 +103,7 @@ export default function Portals() {
   }
 
   async function remove(credId: string) {
+    if (!confirm('Supprimer cet accès ? Cette action est définitive.')) return
     await supabase.from('portal_credentials').delete().eq('id', credId)
     await load()
   }

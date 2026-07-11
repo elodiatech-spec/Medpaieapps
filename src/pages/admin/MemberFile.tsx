@@ -12,6 +12,13 @@ function StatusToggle({ member, onChanged }: { member: Profile; onChanged: (m: P
   const [saving, setSaving] = useState(false)
 
   async function toggle() {
+    if (
+      member.active &&
+      !confirm(
+        `Désactiver le compte de ${member.first_name} ${member.last_name} ? Cette personne ne pourra plus se connecter à MedPaie.`,
+      )
+    )
+      return
     setSaving(true)
     const { data } = await supabase
       .from('profiles')
