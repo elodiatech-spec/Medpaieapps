@@ -8,28 +8,43 @@ import type { Cabinet, Invoice } from '../../lib/database.types'
 export default function Invoices() {
   const [invoices, setInvoices] = useState<(Invoice & { cabinet?: Cabinet })[]>([])
   const [loading, setLoading] = useState(true)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  async function load() {
+    const [{ data: inv }, { data: cabs }] = await Promise.all([
+      supabase.from('invoices').select('*').order('period', { ascending: false }),
+      supabase.from('cabinets').select('*'),
+    ])
+    const byCabinet = new Map((cabs as Cabinet[] | null)?.map((c) => [c.id, c]))
+    setInvoices(((inv as Invoice[]) ?? []).map((i) => ({ ...i, cabinet: byCabinet.get(i.cabinet_id) })))
+    setLoading(false)
+  }
 
   useEffect(() => {
-    ;(async () => {
-      const [{ data: inv }, { data: cabs }] = await Promise.all([
-        supabase.from('invoices').select('*').order('period', { ascending: false }),
-        supabase.from('cabinets').select('*'),
-      ])
-      const byCabinet = new Map((cabs as Cabinet[] | null)?.map((c) => [c.id, c]))
-      setInvoices(((inv as Invoice[]) ?? []).map((i) => ({ ...i, cabinet: byCabinet.get(i.cabinet_id) })))
-      setLoading(false)
-    })()
+    load()
   }, [])
+
+  async function markPaid(invoiceId: string) {
+    setUpdatingId(invoiceId)
+    await supabase.from('invoices').update({ status: 'paid' }).eq('id', invoiceId)
+    setUpdatingId(null)
+    await load()
+  }
 
   if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
 
   const totalTTC = invoices.reduce((sum, i) => sum + i.amount_ttc, 0)
+  const totalPaid = invoices.filter((i) => i.status === 'paid').reduce((sum, i) => sum + i.amount_ttc, 0)
+  const totalOutstanding = totalTTC - totalPaid
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold text-slate-900">Facturation</h1>
-        <p className="text-sm text-slate-600">{formatCurrency(totalTTC)} TTC au total</p>
+        <p className="text-sm text-slate-600">
+          {formatCurrency(totalTTC)} TTC au total · {formatCurrency(totalPaid)} encaissé
+          {totalOutstanding > 0 ? ` · ${formatCurrency(totalOutstanding)} en attente` : ''}
+        </p>
       </div>
 
       <Card>
@@ -51,6 +66,15 @@ export default function Invoices() {
                 <div className="flex items-center gap-3">
                   <span className="font-medium text-slate-900">{formatCurrency(inv.amount_ttc)}</span>
                   <StatusBadge status={inv.status} />
+                  {inv.status !== 'paid' && (
+                    <button
+                      onClick={() => markPaid(inv.id)}
+                      disabled={updatingId === inv.id}
+                      className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                    >
+                      {updatingId === inv.id ? '…' : 'Marquer payée'}
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

@@ -646,14 +646,14 @@ export default function CabinetDetail() {
         ) : (
           <div className="flex flex-col divide-y divide-slate-100">
             {documents.map((doc) => {
-              const emp = employees.find((e) => e.id === doc.employee_id)
+              const recipient = members.find((m) => m.id === doc.employee_id)
               return (
                 <div key={doc.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
                   <div>
                     <p className="font-medium text-slate-900">{doc.document_name}</p>
                     <p className="text-xs text-slate-500">
                       {DOCUMENT_TYPE_LABELS[doc.document_type]}
-                      {emp ? ` · ${emp.first_name} ${emp.last_name}` : ' · Cabinet entier'}
+                      {recipient ? ` · ${recipient.first_name} ${recipient.last_name}` : ' · Cabinet entier'}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
@@ -685,16 +685,16 @@ export default function CabinetDetail() {
         <form onSubmit={addDocument} className="flex flex-col gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-slate-700">Salarié (optionnel)</label>
+              <label className="text-sm font-medium text-slate-700">Destinataire (optionnel)</label>
               <select
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
                 className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
               >
                 <option value="">— Cabinet entier —</option>
-                {employees.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {e.first_name} {e.last_name}
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.first_name} {m.last_name} ({ROLE_LABELS[m.role]})
                   </option>
                 ))}
               </select>

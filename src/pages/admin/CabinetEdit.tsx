@@ -102,6 +102,13 @@ export default function CabinetEdit() {
 
   async function toggleActive() {
     if (!id || !cabinet) return
+    if (
+      cabinet.active &&
+      !confirm(
+        `Désactiver ${cabinet.name} ? Tous ses membres (médecin, assistantes) perdront immédiatement l'accès à l'application.`,
+      )
+    )
+      return
     const { error } = await supabase
       .from('cabinets')
       .update({ active: !cabinet.active })
