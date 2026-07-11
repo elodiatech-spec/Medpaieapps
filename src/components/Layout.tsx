@@ -48,7 +48,7 @@ const AI_ASSISTANT_URL = 'https://share.gemini.google/BfuyM4LuisIo'
 const NAV_BY_ROLE: Record<Role, NavItem[]> = {
   admin: [
     { to: '/', label: 'Cabinets', icon: Building2, end: true, badge: 'admin-alerts' },
-    { to: '/salaries', label: 'Salariés', icon: Users },
+    { to: '/salaries', label: 'Salariés & médecins', icon: Users },
     { to: '/gestion-paie', label: 'Gestion de paie', icon: Banknote },
     { to: '/chiffres', label: 'Statistiques', icon: BarChart3, mobile: false },
     { to: '/factures', label: 'Factures', icon: Receipt, mobile: false },
