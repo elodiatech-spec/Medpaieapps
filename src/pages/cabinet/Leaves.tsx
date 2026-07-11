@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { Camera, ExternalLink } from 'lucide-react'
+import { Camera, ExternalLink, FileUp } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import { formatDate } from '../../lib/format'
@@ -170,17 +170,34 @@ function EmployeeLeaves() {
             <label className="text-sm font-medium text-slate-700">
               Justificatif {justificationRequired ? '(obligatoire pour ce motif)' : '(optionnel)'}
             </label>
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-4 text-sm text-slate-600 hover:border-brand-400">
-              <Camera size={18} />
-              {file ? file.name : 'Prendre une photo ou choisir un fichier'}
-              <input
-                type="file"
-                accept="image/*,.pdf"
-                capture="environment"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                className="hidden"
-              />
-            </label>
+            {file && (
+              <p className="rounded-lg bg-brand-50 px-3 py-2 text-sm text-brand-700">
+                {file.name}
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-4 text-sm text-slate-600 hover:border-brand-400">
+                <Camera size={18} />
+                Prendre une photo
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  className="hidden"
+                />
+              </label>
+              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-4 text-sm text-slate-600 hover:border-brand-400">
+                <FileUp size={18} />
+                Choisir un fichier (PDF ou photo)
+                <input
+                  type="file"
+                  accept="image/*,.pdf"
+                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  className="hidden"
+                />
+              </label>
+            </div>
           </div>
           <button
             type="submit"
@@ -220,19 +237,39 @@ function EmployeeLeaves() {
                       </button>
                     )}
                     {JUSTIFICATION_REQUIRED_TYPES.includes(l.leave_type) && !l.justification_document_url && (
-                      <label className="cursor-pointer text-xs font-medium text-brand-700 hover:text-brand-800">
-                        {uploadingFor === l.id ? 'Envoi…' : 'Ajouter un justificatif'}
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                          capture="environment"
-                          className="hidden"
-                          onChange={(e) => {
-                            const f = e.target.files?.[0]
-                            if (f) addJustification(l.id, f)
-                          }}
-                        />
-                      </label>
+                      <>
+                        {uploadingFor === l.id ? (
+                          <span className="text-xs font-medium text-slate-500">Envoi…</span>
+                        ) : (
+                          <>
+                            <label className="cursor-pointer text-xs font-medium text-brand-700 hover:text-brand-800">
+                              Photo
+                              <input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0]
+                                  if (f) addJustification(l.id, f)
+                                }}
+                              />
+                            </label>
+                            <label className="cursor-pointer text-xs font-medium text-brand-700 hover:text-brand-800">
+                              Fichier
+                              <input
+                                type="file"
+                                accept="image/*,.pdf"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const f = e.target.files?.[0]
+                                  if (f) addJustification(l.id, f)
+                                }}
+                              />
+                            </label>
+                          </>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
