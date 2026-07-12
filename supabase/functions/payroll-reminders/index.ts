@@ -28,6 +28,13 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
   }
 }
 
+async function notifyAdmins(subject: string, html: string) {
+  const { data: admins } = await supabase.from('profiles').select('email, first_name').eq('role', 'admin')
+  for (const admin of admins ?? []) {
+    await sendEmail(admin.email, subject, `<p>Bonjour ${admin.first_name},</p>${html}`)
+  }
+}
+
 Deno.serve(async () => {
   const now = new Date()
   const day = now.getDate()
@@ -41,11 +48,14 @@ Deno.serve(async () => {
   const { data: cabinets } = await supabase.from('cabinets').select('id, name').eq('active', true)
 
   let sent = 0
+  // Cabinets encore en retard le 27+ : l'admin en a besoin pour préparer la
+  // paie, il ne doit pas avoir à le découvrir seul en ouvrant "Gestion de paie".
+  const cabinetsBehind: { name: string; employees: string[] }[] = []
 
   for (const cabinet of cabinets ?? []) {
     const { data: employees } = await supabase
       .from('profiles')
-      .select('id, email, first_name')
+      .select('id, email, first_name, last_name')
       .eq('cabinet_id', cabinet.id)
       .eq('role', 'employee')
       .eq('active', true)
@@ -56,6 +66,8 @@ Deno.serve(async () => {
       .eq('cabinet_id', cabinet.id)
       .eq('role', 'employer')
       .eq('active', true)
+
+    const behindNames: string[] = []
 
     for (const employee of employees ?? []) {
       const { data: variable } = await supabase
@@ -91,8 +103,24 @@ Deno.serve(async () => {
           )
           sent++
         }
+        behindNames.push(`${employee.first_name} ${employee.last_name}`)
       }
     }
+
+    if (day >= 27 && behindNames.length > 0) {
+      cabinetsBehind.push({ name: cabinet.name, employees: behindNames })
+    }
+  }
+
+  if (day >= 27 && cabinetsBehind.length > 0) {
+    const listHtml = cabinetsBehind
+      .map((c) => `<li><b>${c.name}</b> : ${c.employees.join(', ')}</li>`)
+      .join('')
+    await notifyAdmins(
+      `Variables de paie non validées — ${cabinetsBehind.length} cabinet(s)`,
+      `<p>Les cabinets suivants ont des variables de paie non validées pour ${monthPeriod.slice(0, 7)} :</p><ul>${listHtml}</ul><p>Retrouvez le détail dans "Gestion de paie".</p>`,
+    )
+    sent++
   }
 
   return new Response(JSON.stringify({ done: true, sent }), { status: 200 })

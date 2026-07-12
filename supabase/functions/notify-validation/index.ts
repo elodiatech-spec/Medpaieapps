@@ -3,7 +3,10 @@
 //    (payroll_variables.status = 'validated')
 // 2. qu'un nouveau justificatif vient d'être transmis par une salariée
 //    (leave_requests.justification_document_url passe de vide à renseigné)
-// Déclenché par des triggers SQL directs (voir supabase/migrations/0006 et 0011).
+// 3. qu'un nouveau compte vient de s'auto-inscrire et attend d'être affecté
+//    à un cabinet (profiles.cabinet_id = 'a-affecter')
+// Déclenché par des triggers SQL directs (voir supabase/migrations/0006,
+// 0011 et 0016).
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const supabase = createClient(
@@ -58,6 +61,14 @@ Deno.serve(async (req) => {
     await notifyAdmins(
       `Variables validées — ${cabinet?.name ?? ''}`,
       `<p>Les variables de paie de ${employee?.first_name} ${employee?.last_name} (${cabinet?.name}) viennent d'être validées par le médecin employeur. Vous pouvez procéder à l'export CSV.</p>`,
+    )
+    return new Response('ok', { status: 200 })
+  }
+
+  if (payload.table === 'profiles' && record?.cabinet_id === 'a-affecter') {
+    await notifyAdmins(
+      "Nouveau compte en attente d'affectation",
+      `<p>${record.first_name} ${record.last_name} (${record.email}) vient de créer un compte MedPaie et attend d'être affecté(e) à un cabinet.</p>`,
     )
     return new Response('ok', { status: 200 })
   }
