@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import AuthLayout from '../components/AuthLayout'
 
@@ -37,10 +37,18 @@ export default function ResetPassword() {
       {loading ? (
         <p className="text-center text-sm text-slate-600">Chargement…</p>
       ) : !session ? (
-        <p className="rounded-lg bg-amber-50 px-3 py-3 text-sm text-amber-700">
-          Ce lien de réinitialisation n'est plus valide ou a expiré. Refais une demande
-          depuis la page de connexion.
-        </p>
+        <div className="flex flex-col gap-3">
+          <p className="rounded-lg bg-amber-50 px-3 py-3 text-sm text-amber-700">
+            Ce lien de réinitialisation n'est plus valide ou a expiré. Refais une demande
+            depuis la page de connexion.
+          </p>
+          <Link
+            to="/mot-de-passe-oublie"
+            className="rounded-lg bg-brand-600 shadow-[0_2px_8px_-2px_rgba(8,145,178,0.5)] py-2.5 text-center text-sm font-medium text-white transition hover:bg-brand-700"
+          >
+            Demander un nouveau lien
+          </Link>
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">

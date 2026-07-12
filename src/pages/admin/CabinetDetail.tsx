@@ -56,7 +56,11 @@ export default function CabinetDetail() {
   const [loading, setLoading] = useState(true)
 
   const employees = members.filter((m) => m.role === 'employee')
+  const doctors = members.filter((m) => m.role === 'employer')
   const activeEmployeeCount = employees.filter((m) => m.active).length
+
+  const [resendingEmail, setResendingEmail] = useState<string | null>(null)
+  const [resentEmail, setResentEmail] = useState<string | null>(null)
 
   const [employeeId, setEmployeeId] = useState('')
   const [docName, setDocName] = useState('')
@@ -161,6 +165,49 @@ export default function CabinetDetail() {
     setMemberFirstName('')
     setMemberLastName('')
     await load()
+  }
+
+  async function resendInvite(email: string) {
+    setResendingEmail(email)
+    await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+    })
+    setResendingEmail(null)
+    setResentEmail(email)
+    setTimeout(() => setResentEmail(null), 3000)
+  }
+
+  function renderMember(m: Profile) {
+    return (
+      <div key={m.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+        <Link
+          to={`/cabinets/${id}/membres/${m.id}`}
+          className="min-w-0 flex-1 hover:opacity-80"
+        >
+          <p className="truncate font-medium text-slate-900">
+            {m.first_name} {m.last_name}
+            {!m.active && (
+              <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+                Désactivé
+              </span>
+            )}
+          </p>
+          <p className="truncate text-slate-600">{m.email}</p>
+        </Link>
+        <button
+          type="button"
+          onClick={() => resendInvite(m.email)}
+          disabled={resendingEmail === m.email}
+          className="shrink-0 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-60"
+        >
+          {resendingEmail === m.email
+            ? 'Envoi…'
+            : resentEmail === m.email
+              ? 'Envoyé ✓'
+              : "Renvoyer l'invitation"}
+        </button>
+      </div>
+    )
   }
 
   async function createAccount(e: FormEvent) {
@@ -386,27 +433,27 @@ export default function CabinetDetail() {
         {members.length === 0 ? (
           <p className="text-sm text-slate-600">Aucun membre affecté à ce cabinet pour le moment.</p>
         ) : (
-          <div className="mb-4 flex flex-col divide-y divide-slate-100">
-            {members.map((m) => (
-              <Link
-                key={m.id}
-                to={`/cabinets/${id}/membres/${m.id}`}
-                className="flex items-center justify-between py-2.5 text-sm hover:bg-slate-50"
-              >
-                <div>
-                  <p className="font-medium text-slate-900">
-                    {m.first_name} {m.last_name}
-                    {!m.active && (
-                      <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-                        Désactivé
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-slate-600">{m.email}</p>
-                </div>
-                <span className="text-xs font-medium text-slate-600">{ROLE_LABELS[m.role]}</span>
-              </Link>
-            ))}
+          <div className="mb-4 flex flex-col gap-5">
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Médecin employeur
+              </p>
+              {doctors.length === 0 ? (
+                <p className="py-1 text-sm text-slate-400">Aucun médecin affecté pour le moment.</p>
+              ) : (
+                <div className="flex flex-col divide-y divide-slate-100">{doctors.map(renderMember)}</div>
+              )}
+            </div>
+            <div>
+              <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                Équipe (assistantes médicales)
+              </p>
+              {employees.length === 0 ? (
+                <p className="py-1 text-sm text-slate-400">Aucune assistante affectée pour le moment.</p>
+              ) : (
+                <div className="flex flex-col divide-y divide-slate-100">{employees.map(renderMember)}</div>
+              )}
+            </div>
           </div>
         )}
 

@@ -3,13 +3,7 @@ import { Link } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import Card from '../../components/Card'
-import type { Cabinet, Profile, Role } from '../../lib/database.types'
-
-const ROLE_LABELS: Record<Role, string> = {
-  admin: 'Admin Elodiatech',
-  employer: 'Médecin employeur',
-  employee: 'Assistante médicale',
-}
+import type { Cabinet, Profile } from '../../lib/database.types'
 
 type RoleFilter = 'all' | 'employee' | 'employer'
 
@@ -49,6 +43,31 @@ export default function Employees() {
   }, [members, cabinets, query, roleFilter])
 
   if (loading) return <p className="text-sm text-slate-600">Chargement…</p>
+
+  function renderRow(m: Profile) {
+    return (
+      <Link
+        key={m.id}
+        to={`/cabinets/${m.cabinet_id}/membres/${m.id}`}
+        className="flex items-center justify-between gap-3 py-2.5 text-sm hover:bg-slate-50"
+      >
+        <div>
+          <p className="font-medium text-slate-900">
+            {m.first_name} {m.last_name}
+            {!m.active && (
+              <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
+                Désactivé
+              </span>
+            )}
+          </p>
+          <p className="text-slate-600">{m.email}</p>
+        </div>
+        <p className="shrink-0 text-sm font-medium text-slate-700">
+          {cabinets.get(m.cabinet_id)?.name ?? m.cabinet_id}
+        </p>
+      </Link>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -95,37 +114,36 @@ export default function Employees() {
         </div>
       </Card>
 
-      <Card>
-        {filtered.length === 0 ? (
+      {filtered.length === 0 ? (
+        <Card>
           <p className="text-sm text-slate-600">Aucun résultat.</p>
-        ) : (
-          <div className="flex flex-col divide-y divide-slate-100">
-            {filtered.map((m) => (
-              <Link
-                key={m.id}
-                to={`/cabinets/${m.cabinet_id}/membres/${m.id}`}
-                className="flex items-center justify-between gap-3 py-2.5 text-sm hover:bg-slate-50"
-              >
-                <div>
-                  <p className="font-medium text-slate-900">
-                    {m.first_name} {m.last_name}
-                    {!m.active && (
-                      <span className="ml-2 rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-                        Désactivé
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-slate-600">{m.email}</p>
-                </div>
-                <div className="shrink-0 text-right">
-                  <p className="font-medium text-slate-700">{cabinets.get(m.cabinet_id)?.name ?? m.cabinet_id}</p>
-                  <p className="text-xs text-slate-500">{ROLE_LABELS[m.role]}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </Card>
+        </Card>
+      ) : roleFilter !== 'all' ? (
+        <Card>
+          <div className="flex flex-col divide-y divide-slate-100">{filtered.map(renderRow)}</div>
+        </Card>
+      ) : (
+        <>
+          <Card title={`Médecins employeurs (${filtered.filter((m) => m.role === 'employer').length})`}>
+            {filtered.filter((m) => m.role === 'employer').length === 0 ? (
+              <p className="text-sm text-slate-600">Aucun résultat.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-slate-100">
+                {filtered.filter((m) => m.role === 'employer').map(renderRow)}
+              </div>
+            )}
+          </Card>
+          <Card title={`Assistantes médicales (${filtered.filter((m) => m.role === 'employee').length})`}>
+            {filtered.filter((m) => m.role === 'employee').length === 0 ? (
+              <p className="text-sm text-slate-600">Aucun résultat.</p>
+            ) : (
+              <div className="flex flex-col divide-y divide-slate-100">
+                {filtered.filter((m) => m.role === 'employee').map(renderRow)}
+              </div>
+            )}
+          </Card>
+        </>
+      )}
     </div>
   )
 }
